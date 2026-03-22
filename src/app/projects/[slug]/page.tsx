@@ -142,9 +142,9 @@ export default async function ProjectOverviewPage({
   const tags = (project.tags ?? []) as string[];
 
   return (
-    <div className="grid grid-cols-1 xl:grid-cols-[260px_1fr_260px] gap-6">
+    <div className="grid grid-cols-[240px_1fr_240px] gap-6">
       {/* ── Left Column ── */}
-      <div className="space-y-5 order-2 xl:order-1">
+      <div className="space-y-4">
         {/* PROJECT INFO */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5">
@@ -237,7 +237,7 @@ export default async function ProjectOverviewPage({
       </div>
 
       {/* ── Center Column (Main) ── */}
-      <div className="space-y-5 order-1 xl:order-2">
+      <div className="space-y-4">
         {/* Project Header */}
         <div>
           <div className="flex items-center gap-3">
@@ -312,7 +312,7 @@ export default async function ProjectOverviewPage({
       </div>
 
       {/* ── Right Column ── */}
-      <div className="space-y-5 order-3">
+      <div className="space-y-4">
         {/* RELEASE */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-3">

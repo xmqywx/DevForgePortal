@@ -1,13 +1,13 @@
 import { db } from "@/db/client";
 import { projects } from "@/db/schema";
-import { ne, desc } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { ProjectCard } from "@/components/project-card";
 
 export default async function ProjectsPage() {
   const allProjects = await db
     .select()
     .from(projects)
-    .where(ne(projects.stage, "archived"))
+    .where(eq(projects.isPublic, true))
     .orderBy(desc(projects.updatedAt));
 
   return (
