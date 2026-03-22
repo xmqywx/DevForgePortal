@@ -142,7 +142,7 @@ export default async function ProjectOverviewPage({
   const tags = (project.tags ?? []) as string[];
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "240px 1fr 240px", gap: "24px" }}
+    <div style={{ display: "grid", gridTemplateColumns: "240px 1fr 240px", gap: "24px" }}>
       {/* ── Left Column ── */}
       <div className="space-y-4">
         {/* PROJECT INFO */}
