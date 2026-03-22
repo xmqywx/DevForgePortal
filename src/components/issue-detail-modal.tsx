@@ -21,11 +21,11 @@ const priorityPillColor: Record<string, string> = {
 
 const statusLabel: Record<string, string> = {
   open: "Open",
-  "in-review": "In Review",
   "in-progress": "In Progress",
-  resolved: "Resolved",
+  resolved: "Done",
   "wont-fix": "Won't Fix",
   deferred: "Deferred",
+  closed: "Closed",
 };
 
 function formatDate(dateStr: string) {

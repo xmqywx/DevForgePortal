@@ -12,12 +12,6 @@ const columns = [
     filter: (i: IssueWithVotes) => i.status === "open",
   },
   {
-    key: "in-review",
-    title: "In Review",
-    border: "border-t-4 border-blue-400",
-    filter: (i: IssueWithVotes) => i.status === "in-review",
-  },
-  {
     key: "in-progress",
     title: "In Progress",
     border: "border-t-4 border-[#c6e135]",
@@ -27,8 +21,14 @@ const columns = [
     key: "done",
     title: "Done",
     border: "border-t-4 border-green-500",
+    filter: (i: IssueWithVotes) => i.status === "resolved",
+  },
+  {
+    key: "closed",
+    title: "Closed",
+    border: "border-t-4 border-gray-400",
     filter: (i: IssueWithVotes) =>
-      i.status === "resolved" || i.status === "wont-fix",
+      i.status === "wont-fix" || i.status === "deferred" || i.status === "closed",
   },
 ] as const;
 

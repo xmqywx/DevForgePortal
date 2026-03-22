@@ -94,7 +94,7 @@ export default async function RoadmapPage({
 
   // Group by column
   const planned = items.filter(
-    (i) => i.status === "open" || i.status === "under-review" || i.status === "in-review"
+    (i) => i.status === "open" || i.status === "under-review" || i.status === "open"
   );
   const inProgress = items.filter((i) => i.status === "in-progress");
   const completed = items.filter((i) => i.status === "resolved");
