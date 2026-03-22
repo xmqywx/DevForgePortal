@@ -1,13 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { LuChevronUp, LuSend, LuMessageCircle, LuChevronDown, LuPaperclip, LuX } from "react-icons/lu";
+import { LuChevronUp, LuSend, LuMessageCircle, LuPaperclip, LuX, LuChevronDown } from "react-icons/lu";
 import type { IssueWithVotes } from "./issue-card-with-vote";
 
 const typePillColor: Record<string, string> = {
@@ -49,13 +43,10 @@ function getAvatarUrl(name: string) {
   return `https://api.dicebear.com/7.x/${style}/svg?seed=${encodeURIComponent(name)}`;
 }
 
-// Render description: parse \n as newline, basic markdown-like rendering
 function renderDescription(text: string) {
-  // Replace literal \n with actual newlines
   const normalized = text.replace(/\\n/g, "\n");
   return normalized.split("\n").map((line, i) => {
     if (!line.trim()) return <br key={i} />;
-    // Bold: **text**
     const parts = line.split(/(\*\*.*?\*\*)/g);
     return (
       <p key={i} className="mb-1">
@@ -120,6 +111,16 @@ export function IssueDetailModal({
     }
   }, [issue, open]);
 
+  // Prevent body scroll when drawer open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
   async function loadComments(issueId: number) {
     setLoading(true);
     try {
@@ -183,123 +184,134 @@ export function IssueDetailModal({
   const status = issue.status ?? "open";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col overflow-hidden p-0">
-        {/* Header */}
-        <div className="p-6 pb-0">
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${typePillColor[type]}`}>
-              {type}
-            </span>
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${priorityPillColor[priority]}`}>
-              {priority}
-            </span>
-            <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-              status === "resolved" ? "bg-green-100 text-green-700" :
-              status === "in-progress" ? "bg-[#c6e135]/20 text-[#65a30d]" :
-              "bg-gray-100 text-gray-500"
-            }`}>
-              {statusLabel[status] ?? status}
-            </span>
-            {issue.createdAt && (
-              <span className="text-xs text-gray-400 ml-auto">{formatDate(issue.createdAt)}</span>
-            )}
-          </div>
+    <>
+      {/* Backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/30 z-40 transition-opacity"
+          onClick={() => onOpenChange(false)}
+        />
+      )}
 
-          <DialogTitle className="text-xl font-bold text-[#1a1a1a] leading-tight mb-3">
-            {issue.title}
-          </DialogTitle>
-
-          {/* Vote */}
+      {/* Drawer from right */}
+      <div
+        className={`fixed top-0 right-0 h-full w-full max-w-xl bg-white shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col ${
+          open ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        {/* Close button */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <span className="text-xs text-gray-400">Issue Detail</span>
           <button
-            onClick={handleVote}
-            className={`mb-4 flex items-center gap-2 px-4 py-2 rounded-full border transition-colors text-sm ${
-              voted
-                ? "bg-[#c6e135]/20 border-[#c6e135] text-[#65a30d]"
-                : "border-gray-200 hover:border-[#c6e135] hover:bg-[#c6e135]/10"
-            }`}
+            onClick={() => onOpenChange(false)}
+            className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
           >
-            <LuChevronUp className="w-4 h-4" />
-            <span className="font-semibold">{votes}</span>
-            <span className="text-gray-400 text-xs">Vote to prioritize</span>
+            <LuX className="w-5 h-5 text-gray-400" />
           </button>
         </div>
 
-        {/* Description */}
-        {issue.description && (
-          <div className="px-6 pb-4">
-            <DialogDescription asChild>
+        {/* Scrollable content */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Header */}
+          <div className="px-6 pt-5 pb-4">
+            <div className="flex items-center gap-2 mb-3 flex-wrap">
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${typePillColor[type]}`}>{type}</span>
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${priorityPillColor[priority]}`}>{priority}</span>
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${
+                status === "resolved" ? "bg-green-100 text-green-700" :
+                status === "in-progress" ? "bg-[#c6e135]/20 text-[#65a30d]" :
+                "bg-gray-100 text-gray-500"
+              }`}>{statusLabel[status] ?? status}</span>
+              {issue.createdAt && (
+                <span className="text-xs text-gray-400 ml-auto">{formatDate(issue.createdAt)}</span>
+              )}
+            </div>
+
+            <h2 className="text-xl font-bold text-[#1a1a1a] leading-tight mb-4">{issue.title}</h2>
+
+            {/* Vote */}
+            <button
+              onClick={handleVote}
+              className={`mb-4 flex items-center gap-2 px-4 py-2 rounded-full border transition-colors text-sm ${
+                voted
+                  ? "bg-[#c6e135]/20 border-[#c6e135] text-[#65a30d]"
+                  : "border-gray-200 hover:border-[#c6e135] hover:bg-[#c6e135]/10"
+              }`}
+            >
+              <LuChevronUp className="w-4 h-4" />
+              <span className="font-semibold">{votes}</span>
+              <span className="text-gray-400 text-xs">Vote to prioritize</span>
+            </button>
+
+            {/* Description */}
+            {issue.description && (
               <div className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-xl p-4 border border-gray-100">
                 {renderDescription(issue.description)}
               </div>
-            </DialogDescription>
-          </div>
-        )}
-
-        {/* Divider */}
-        <div className="border-t border-gray-100" />
-
-        {/* Comments */}
-        <div className="flex-1 overflow-y-auto min-h-0 px-6 py-4">
-          <div className="flex items-center gap-2 mb-4">
-            <LuMessageCircle className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-semibold text-[#1a1a1a]">
-              Comments ({comments.length})
-            </span>
+            )}
           </div>
 
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="w-5 h-5 border-2 border-[#c6e135] border-t-transparent rounded-full animate-spin" />
+          {/* Comments section */}
+          <div className="border-t border-gray-100 px-6 py-5">
+            <div className="flex items-center gap-2 mb-5">
+              <LuMessageCircle className="w-5 h-5 text-gray-400" />
+              <span className="text-base font-semibold text-[#1a1a1a]">
+                Comments ({comments.length})
+              </span>
             </div>
-          ) : comments.length === 0 ? (
-            <p className="text-sm text-gray-300 text-center py-8">No comments yet. Be the first to comment!</p>
-          ) : (
-            <div className="space-y-4">
-              {comments.map((c) => {
-                const authorName = c.authorName ?? "Anonymous";
-                const isOwner = c.isOwner ?? false;
-                return (
-                  <div key={c.id} className={`flex gap-3 ${isOwner ? "flex-row-reverse" : ""}`}>
-                    <div className="flex-shrink-0">
-                      {isOwner ? (
-                        <div className="w-9 h-9 rounded-full bg-[#c6e135] flex items-center justify-center text-sm font-bold">Y</div>
-                      ) : (
-                        <img src={getAvatarUrl(authorName)} alt="" className="w-9 h-9 rounded-full bg-gray-100" />
-                      )}
-                    </div>
-                    <div className={`max-w-[80%] ${isOwner ? "items-end" : ""}`}>
-                      <div className={`flex items-center gap-1.5 mb-1 ${isOwner ? "justify-end" : ""}`}>
-                        <span className={`text-xs font-medium ${isOwner ? "text-[#65a30d]" : "text-gray-600"}`}>{authorName}</span>
-                        {isOwner && <span className="text-[9px] bg-[#c6e135] text-[#1a1a1a] px-1.5 py-0.5 rounded-full font-medium">Owner</span>}
-                        {c.createdAt && <span className="text-[10px] text-gray-400">{formatDate(c.createdAt)}</span>}
-                      </div>
-                      <div className={`rounded-2xl px-4 py-3 text-sm ${
-                        isOwner ? "bg-[#c6e135]/10 border border-[#c6e135]/30" : "bg-gray-50 border border-gray-100"
-                      }`}>
-                        <p className="text-gray-800 whitespace-pre-wrap">{c.content}</p>
-                        {c.images && c.images.length > 0 && (
-                          <div className="flex gap-2 mt-2">
-                            {c.images.map((url, i) => (
-                              <img key={i} src={url} alt="" className="max-w-[200px] rounded-lg border" />
-                            ))}
-                          </div>
+
+            {loading ? (
+              <div className="flex justify-center py-10">
+                <div className="w-6 h-6 border-2 border-[#c6e135] border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : comments.length === 0 ? (
+              <p className="text-sm text-gray-300 text-center py-10">No comments yet. Be the first to share your thoughts!</p>
+            ) : (
+              <div className="space-y-5">
+                {comments.map((c) => {
+                  const authorName = c.authorName ?? "Anonymous";
+                  const isOwner = c.isOwner ?? false;
+                  return (
+                    <div key={c.id} className={`flex gap-3 ${isOwner ? "flex-row-reverse" : ""}`}>
+                      <div className="flex-shrink-0">
+                        {isOwner ? (
+                          <div className="w-10 h-10 rounded-full bg-[#c6e135] flex items-center justify-center text-sm font-bold">Y</div>
+                        ) : (
+                          <img src={getAvatarUrl(authorName)} alt="" className="w-10 h-10 rounded-full bg-gray-100" />
                         )}
                       </div>
+                      <div className={`max-w-[80%]`}>
+                        <div className={`flex items-center gap-2 mb-1 ${isOwner ? "justify-end" : ""}`}>
+                          <span className={`text-xs font-medium ${isOwner ? "text-[#65a30d]" : "text-gray-600"}`}>{authorName}</span>
+                          {isOwner && <span className="text-[9px] bg-[#c6e135] text-[#1a1a1a] px-1.5 py-0.5 rounded-full font-medium">Owner</span>}
+                          {c.createdAt && <span className="text-[10px] text-gray-400">{formatDate(c.createdAt)}</span>}
+                        </div>
+                        <div className={`rounded-2xl px-4 py-3 text-sm ${
+                          isOwner ? "bg-[#c6e135]/10 border border-[#c6e135]/30" : "bg-gray-50 border border-gray-100"
+                        }`}>
+                          <p className="text-gray-800 whitespace-pre-wrap">{c.content}</p>
+                          {c.images && c.images.length > 0 && (
+                            <div className="flex gap-2 mt-2 flex-wrap">
+                              {c.images.map((url, i) => (
+                                <img key={i} src={url} alt="" className="max-w-[200px] rounded-lg border" />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-              <div ref={commentsEndRef} />
-            </div>
-          )}
+                  );
+                })}
+                <div ref={commentsEndRef} />
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Comment Input — Expandable */}
-        <div className="border-t border-gray-100 p-4">
+        {/* Comment Input — Fixed at bottom */}
+        <div className="border-t border-gray-100 bg-white p-4">
           {!expanded ? (
-            /* Collapsed: simple row */
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <img
                 src={avatarUrl}
                 alt=""
@@ -309,13 +321,12 @@ export function IssueDetailModal({
               />
               <button
                 onClick={() => setExpanded(true)}
-                className="flex-1 text-left text-sm text-gray-400 px-4 py-2.5 border border-gray-200 rounded-xl bg-white hover:border-[#c6e135] transition-colors"
+                className="flex-1 text-left text-sm text-gray-400 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 hover:border-[#c6e135] transition-colors"
               >
                 Leave a comment...
               </button>
             </div>
           ) : (
-            /* Expanded: full editor */
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <img
@@ -332,33 +343,27 @@ export function IssueDetailModal({
                   onChange={(e) => setName(e.target.value)}
                   className="flex-1 text-sm px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#c6e135]"
                 />
-                <button
-                  onClick={() => { setExpanded(false); setContent(""); setImages([]); }}
-                  className="p-1.5 text-gray-400 hover:text-gray-600"
-                >
-                  <LuX className="w-4 h-4" />
+                <button onClick={() => { setExpanded(false); setContent(""); setImages([]); }} className="p-1.5 text-gray-400 hover:text-gray-600">
+                  <LuChevronDown className="w-4 h-4" />
                 </button>
               </div>
 
               <textarea
                 autoFocus
-                rows={4}
+                rows={3}
                 placeholder="Write your comment... (Markdown supported)"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="w-full text-sm px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#c6e135] resize-none"
               />
 
-              {/* Image previews */}
               {images.length > 0 && (
                 <div className="flex gap-2 flex-wrap">
                   {images.map((url, i) => (
                     <div key={i} className="relative">
-                      <img src={url} alt="" className="w-16 h-16 object-cover rounded-lg border" />
-                      <button
-                        onClick={() => setImages((imgs) => imgs.filter((_, j) => j !== i))}
-                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center shadow-sm"
-                      >
+                      <img src={url} alt="" className="w-14 h-14 object-cover rounded-lg border" />
+                      <button onClick={() => setImages((imgs) => imgs.filter((_, j) => j !== i))}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
                         <LuX className="w-3 h-3" />
                       </button>
                     </div>
@@ -369,13 +374,13 @@ export function IssueDetailModal({
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 cursor-pointer transition-colors">
                   <LuPaperclip className="w-4 h-4" />
-                  <span>Attach images</span>
+                  <span>Attach</span>
                   <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
                 </label>
                 <button
                   onClick={handleSend}
                   disabled={sending || !content.trim()}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl bg-[#c6e135] text-[#1a1a1a] font-medium text-sm hover:bg-[#b5d030] disabled:opacity-40 transition-colors"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#c6e135] text-[#1a1a1a] font-medium text-sm hover:bg-[#b5d030] disabled:opacity-40 transition-colors"
                 >
                   <LuSend className="w-4 h-4" />
                   {sending ? "Sending..." : "Send"}
@@ -384,7 +389,7 @@ export function IssueDetailModal({
             </div>
           )}
         </div>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </>
   );
 }
