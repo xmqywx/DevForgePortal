@@ -1,6 +1,7 @@
 "use client";
 import { LuThumbsUp } from "react-icons/lu";
 import { VoteButton } from "./vote-button";
+import { SafeHtml } from "./safe-html";
 import type { FeedbackItem } from "./feedback-shell";
 
 function formatDate(dateStr: string) {
@@ -80,9 +81,7 @@ export function FeedbackList({
                 {item.title}
               </h3>
               {item.description && (
-                <p className="text-xs text-gray-500 line-clamp-2">
-                  {item.description}
-                </p>
+                <SafeHtml content={item.description} className="text-xs text-gray-500 line-clamp-2" />
               )}
               <div className="flex items-center gap-2 mt-2 text-[11px] text-gray-400">
                 <span>{item.authorName ?? "Anonymous"}</span>

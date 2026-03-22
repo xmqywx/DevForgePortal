@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { LuPaperclip, LuSend } from "react-icons/lu";
+import { RichTextEditor } from "./rich-text-editor";
 
 const AVATAR_STYLES = ["adventurer", "avataaars", "bottts", "fun-emoji", "lorelei", "micah", "miniavs", "personas"];
 
@@ -96,13 +97,9 @@ export function NewFeedbackForm({
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Content <span className="text-red-400">*</span>
         </label>
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Describe in detail... Supports Markdown"
-          required
-          rows={5}
-          className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#c6e135] resize-y"
+        <RichTextEditor
+          placeholder="Describe in detail..."
+          onChange={(html) => setContent(html)}
         />
       </div>
 

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef } from "react";
 import { LuChevronUp, LuSend, LuMessageCircle, LuPaperclip, LuX, LuChevronDown } from "react-icons/lu";
+import { SafeHtml } from "./safe-html";
+import { RichTextEditor } from "./rich-text-editor";
 import type { IssueWithVotes } from "./issue-card-with-vote";
 
 const typePillColor: Record<string, string> = {
@@ -306,7 +308,7 @@ export function IssueDetailModal({
                         <div className={`rounded-2xl px-4 py-3 text-sm ${
                           isOwner ? "bg-[#c6e135]/10 border border-[#c6e135]/30" : "bg-gray-50 border border-gray-100"
                         }`}>
-                          <p className="text-gray-800 whitespace-pre-wrap">{c.content}</p>
+                          <SafeHtml content={c.content} className="text-gray-800 leading-relaxed prose prose-sm max-w-none" />
                           {c.images && c.images.length > 0 && (
                             <div className="flex gap-2 mt-2 flex-wrap">
                               {c.images.map((url, i) => (
@@ -365,13 +367,10 @@ export function IssueDetailModal({
                 </button>
               </div>
 
-              <textarea
-                autoFocus
-                rows={3}
-                placeholder="Write your comment... (Markdown supported)"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full text-sm px-4 py-3 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#c6e135] resize-none"
+              <RichTextEditor
+                compact
+                placeholder="Write your comment..."
+                onChange={(html) => setContent(html)}
               />
 
               {images.length > 0 && (

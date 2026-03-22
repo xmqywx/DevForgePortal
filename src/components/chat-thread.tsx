@@ -1,7 +1,9 @@
 "use client";
-import { useState } from "react";
-import { LuSend } from "react-icons/lu";
+import { useState, useRef } from "react";
+import { LuSend, LuPaperclip, LuChevronDown, LuX } from "react-icons/lu";
 import { VoteButton } from "./vote-button";
+import { SafeHtml } from "./safe-html";
+import { RichTextEditor } from "./rich-text-editor";
 import type { FeedbackItem, Reply } from "./feedback-shell";
 
 const AVATAR_STYLES = ["adventurer", "avataaars", "bottts", "fun-emoji", "lorelei", "micah", "miniavs", "personas"];
@@ -91,7 +93,7 @@ function MessageBubble({
               : "bg-gray-50 border border-gray-100"
           }`}
         >
-          <p className="text-sm text-gray-800 whitespace-pre-wrap">{content}</p>
+          <SafeHtml content={content} className="text-sm text-gray-800 leading-relaxed prose prose-sm max-w-none" />
           {images && images.length > 0 && (
             <div className="flex gap-2 mt-2 flex-wrap">
               {images.map((url, i) => (
@@ -124,6 +126,9 @@ export function ChatThread({
     return "";
   });
   const [sending, setSending] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [images, setImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarSeed, setAvatarSeed] = useState(() => {
     if (typeof window !== "undefined") return parseInt(localStorage.getItem("devforge_avatar_seed") || "0", 10);
     return 0;
@@ -145,6 +150,16 @@ export function ChatThread({
     localStorage.setItem("devforge_name", val);
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files) return;
+    const formData = new FormData();
+    Array.from(files).forEach((f) => formData.append("files", f));
+    const res = await fetch("/api/upload", { method: "POST", body: formData });
+    const data = await res.json();
+    if (data.urls) setImages((prev: string[]) => [...prev, ...data.urls]);
+  }
+
   async function handleSendReply() {
     if (!replyText.trim()) return;
     setSending(true);
@@ -155,9 +170,12 @@ export function ChatThread({
         content: replyText,
         author_name: replyName || "Anonymous",
         avatar_url: replyAvatarUrl,
+        images,
       }),
     });
     setReplyText("");
+    setImages([]);
+    setExpanded(false);
     setSending(false);
     onReplyAdded();
   }
@@ -217,39 +235,83 @@ export function ChatThread({
 
       {/* Reply input */}
       <div className="border-t border-gray-100 p-4">
-        <div className="flex gap-2 items-center">
-          <img
-            src={replyAvatarUrl}
-            alt=""
-            title="Click to change avatar"
-            onClick={shuffleAvatar}
-            className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-[#c6e135] transition-all"
-          />
-          <input
-            value={replyName}
-            onChange={(e) => updateReplyName(e.target.value)}
-            placeholder="Your name"
-            className="w-28 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c6e135]"
-          />
-          <div className="flex-1 flex gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
-            <input
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              placeholder="Write a reply..."
-              className="flex-1 bg-transparent text-sm focus:outline-none"
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) handleSendReply();
-              }}
+        {!expanded ? (
+          <div className="flex items-center gap-3">
+            <img
+              src={replyAvatarUrl}
+              alt=""
+              title="Click to change avatar"
+              onClick={shuffleAvatar}
+              className="w-9 h-9 rounded-full bg-gray-100 flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-[#c6e135] transition-all"
             />
+            <button
+              onClick={() => setExpanded(true)}
+              className="flex-1 text-left text-sm text-gray-400 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 hover:border-[#c6e135] transition-colors"
+            >
+              Write a reply...
+            </button>
           </div>
-          <button
-            onClick={handleSendReply}
-            disabled={sending || !replyText.trim()}
-            className="bg-[#c6e135] text-[#1a1a1a] px-4 rounded-xl hover:bg-[#b5d025] disabled:opacity-50 transition-colors"
-          >
-            <LuSend className="w-4 h-4" />
-          </button>
-        </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <img
+                src={replyAvatarUrl}
+                alt=""
+                title="Click to change avatar"
+                onClick={shuffleAvatar}
+                className="w-9 h-9 rounded-full bg-gray-100 flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-[#c6e135] transition-all"
+              />
+              <input
+                value={replyName}
+                onChange={(e) => updateReplyName(e.target.value)}
+                placeholder="Your name (optional)"
+                className="flex-1 text-sm px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#c6e135]"
+              />
+              <button onClick={() => { setExpanded(false); setReplyText(""); setImages([]); }} className="p-1.5 text-gray-400 hover:text-gray-600">
+                <LuChevronDown className="w-4 h-4" />
+              </button>
+            </div>
+
+            <RichTextEditor
+              compact
+              placeholder="Write a reply..."
+              onChange={(html) => setReplyText(html)}
+              onImageUpload={() => fileInputRef.current?.click()}
+            />
+
+            {images.length > 0 && (
+              <div className="flex gap-2 flex-wrap">
+                {images.map((url, i) => (
+                  <div key={i} className="relative">
+                    <img src={url} alt="" className="w-14 h-14 object-cover rounded-lg border" />
+                    <button onClick={() => setImages((imgs) => imgs.filter((_, j) => j !== i))}
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">
+                      <LuX className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 cursor-pointer transition-colors">
+                <LuPaperclip className="w-4 h-4" />
+                <span>Attach</span>
+                <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </label>
+              <button
+                onClick={handleSendReply}
+                disabled={sending || !replyText.trim()}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#c6e135] text-[#1a1a1a] font-medium text-sm hover:bg-[#b5d030] disabled:opacity-40 transition-colors"
+              >
+                <LuSend className="w-4 h-4" />
+                {sending ? "Sending..." : "Send"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
