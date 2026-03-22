@@ -40,6 +40,7 @@ function MessageBubble({
   content,
   images,
   date,
+  avatarUrl: storedAvatarUrl,
   children,
 }: {
   authorName: string;
@@ -47,6 +48,7 @@ function MessageBubble({
   content: string;
   images?: string[];
   date: string;
+  avatarUrl?: string | null;
   children?: React.ReactNode;
 }) {
   return (
@@ -59,7 +61,7 @@ function MessageBubble({
           </div>
         ) : (
           <img
-            src={getAvatarUrl(authorName)}
+            src={storedAvatarUrl || getAvatarUrl(authorName)}
             alt=""
             className="w-10 h-10 rounded-full bg-gray-100"
           />
@@ -117,15 +119,30 @@ export function ChatThread({
   onReplyAdded: () => void;
 }) {
   const [replyText, setReplyText] = useState("");
-  const [replyName, setReplyName] = useState("");
+  const [replyName, setReplyName] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("devforge_name") || "";
+    return "";
+  });
   const [sending, setSending] = useState(false);
-  const [avatarSeed, setAvatarSeed] = useState(0);
+  const [avatarSeed, setAvatarSeed] = useState(() => {
+    if (typeof window !== "undefined") return parseInt(localStorage.getItem("devforge_avatar_seed") || "0", 10);
+    return 0;
+  });
 
   const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
   const replyAvatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(replyName || "anon")}-${avatarSeed}`;
 
   function shuffleAvatar() {
-    setAvatarSeed((prev) => prev + 1);
+    setAvatarSeed((prev) => {
+      const next = prev + 1;
+      localStorage.setItem("devforge_avatar_seed", String(next));
+      return next;
+    });
+  }
+
+  function updateReplyName(val: string) {
+    setReplyName(val);
+    localStorage.setItem("devforge_name", val);
   }
 
   async function handleSendReply() {
@@ -137,6 +154,7 @@ export function ChatThread({
       body: JSON.stringify({
         content: replyText,
         author_name: replyName || "Anonymous",
+        avatar_url: replyAvatarUrl,
       }),
     });
     setReplyText("");
@@ -191,6 +209,7 @@ export function ChatThread({
             content={reply.content}
             images={reply.images}
             date={reply.createdAt}
+            avatarUrl={reply.avatarUrl}
           />
         ))}
       </div>
@@ -207,7 +226,7 @@ export function ChatThread({
           />
           <input
             value={replyName}
-            onChange={(e) => setReplyName(e.target.value)}
+            onChange={(e) => updateReplyName(e.target.value)}
             placeholder="Your name"
             className="w-28 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#c6e135]"
           />

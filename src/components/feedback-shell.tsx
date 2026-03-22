@@ -26,6 +26,7 @@ export interface Reply {
   isOwner: boolean;
   content: string;
   images: string[];
+  avatarUrl: string | null;
   createdAt: string;
 }
 

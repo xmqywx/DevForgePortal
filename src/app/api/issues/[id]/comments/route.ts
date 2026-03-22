@@ -24,6 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     isOwner,
     content: body.content,
     images: body.images ?? [],
+    avatarUrl: body.avatar_url ?? null,
   }).returning().get();
 
   return NextResponse.json(result, { status: 201 });

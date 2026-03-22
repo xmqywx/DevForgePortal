@@ -13,16 +13,31 @@ export function NewFeedbackForm({
 }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [name, setName] = useState("");
+  const [name, setName] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("devforge_name") || "";
+    return "";
+  });
   const [images, setImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [avatarSeed, setAvatarSeed] = useState(0);
+  const [avatarSeed, setAvatarSeed] = useState(() => {
+    if (typeof window !== "undefined") return parseInt(localStorage.getItem("devforge_avatar_seed") || "0", 10);
+    return 0;
+  });
 
   const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
   const avatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(name || "anon")}-${avatarSeed}`;
 
   function shuffleAvatar() {
-    setAvatarSeed((prev) => prev + 1);
+    setAvatarSeed((prev) => {
+      const next = prev + 1;
+      localStorage.setItem("devforge_avatar_seed", String(next));
+      return next;
+    });
+  }
+
+  function updateName(val: string) {
+    setName(val);
+    localStorage.setItem("devforge_name", val);
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {

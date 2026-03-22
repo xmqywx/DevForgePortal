@@ -102,6 +102,7 @@ export const feedbackReplies = sqliteTable("feedback_replies", {
   isOwner: integer("is_owner", { mode: "boolean" }).default(false),
   content: text("content").notNull(),
   images: text("images", { mode: "json" }).$type<string[]>().default([]),
+  avatarUrl: text("avatar_url"),
   createdAt: text("created_at").default(sql`(datetime('now'))`),
 });
 
@@ -120,5 +121,6 @@ export const issueComments = sqliteTable("issue_comments", {
   isOwner: integer("is_owner", { mode: "boolean" }).default(false),
   content: text("content").notNull(),
   images: text("images", { mode: "json" }).$type<string[]>().default([]),
+  avatarUrl: text("avatar_url"),
   createdAt: text("created_at").default(sql`(datetime('now'))`),
 });

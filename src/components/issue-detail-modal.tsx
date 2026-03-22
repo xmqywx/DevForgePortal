@@ -67,6 +67,7 @@ interface Comment {
   isOwner: boolean | null;
   content: string;
   images: string[] | null;
+  avatarUrl: string | null;
   createdAt: string | null;
 }
 
@@ -85,10 +86,16 @@ export function IssueDetailModal({
   const [voted, setVoted] = useState(false);
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(() => {
+    if (typeof window !== "undefined") return localStorage.getItem("devforge_name") || "";
+    return "";
+  });
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
-  const [avatarSeed, setAvatarSeed] = useState(0);
+  const [avatarSeed, setAvatarSeed] = useState(() => {
+    if (typeof window !== "undefined") return parseInt(localStorage.getItem("devforge_avatar_seed") || "0", 10);
+    return 0;
+  });
   const [expanded, setExpanded] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const commentsEndRef = useRef<HTMLDivElement>(null);
@@ -97,7 +104,16 @@ export function IssueDetailModal({
   const avatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(name || "anon")}-${avatarSeed}`;
 
   function shuffleAvatar() {
-    setAvatarSeed((prev) => prev + 1);
+    setAvatarSeed((prev) => {
+      const next = prev + 1;
+      localStorage.setItem("devforge_avatar_seed", String(next));
+      return next;
+    });
+  }
+
+  function updateName(val: string) {
+    setName(val);
+    localStorage.setItem("devforge_name", val);
   }
 
   useEffect(() => {
@@ -162,6 +178,7 @@ export function IssueDetailModal({
           author_name: name.trim() || undefined,
           content: content.trim(),
           images,
+          avatar_url: avatarUrl,
         }),
       });
       if (res.ok) {
@@ -277,7 +294,7 @@ export function IssueDetailModal({
                         {isOwner ? (
                           <div className="w-10 h-10 rounded-full bg-[#c6e135] flex items-center justify-center text-sm font-bold">Y</div>
                         ) : (
-                          <img src={getAvatarUrl(authorName)} alt="" className="w-10 h-10 rounded-full bg-gray-100" />
+                          <img src={c.avatarUrl || getAvatarUrl(authorName)} alt="" className="w-10 h-10 rounded-full bg-gray-100" />
                         )}
                       </div>
                       <div className={`max-w-[80%]`}>
@@ -340,7 +357,7 @@ export function IssueDetailModal({
                   type="text"
                   placeholder="Your name (optional)"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => updateName(e.target.value)}
                   className="flex-1 text-sm px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#c6e135]"
                 />
                 <button onClick={() => { setExpanded(false); setContent(""); setImages([]); }} className="p-1.5 text-gray-400 hover:text-gray-600">
