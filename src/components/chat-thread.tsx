@@ -276,7 +276,6 @@ export function ChatThread({
               compact
               placeholder="Write a reply..."
               onChange={(html) => setReplyText(html)}
-              onImageUpload={() => fileInputRef.current?.click()}
             />
 
             {images.length > 0 && (
