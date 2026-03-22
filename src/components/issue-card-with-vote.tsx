@@ -81,6 +81,7 @@ export function IssueCardWithVote({
         >
           <LuChevronUp className="w-4 h-4" />
           <span className="text-xs font-medium">{votes}</span>
+          <span className="text-[10px] text-gray-400">votes</span>
         </button>
 
         {/* Content */}

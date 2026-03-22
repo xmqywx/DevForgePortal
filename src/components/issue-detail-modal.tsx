@@ -60,6 +60,8 @@ interface Comment {
   createdAt: string | null;
 }
 
+const AVATAR_STYLES = ["adventurer", "avataaars", "bottts", "fun-emoji", "lorelei", "micah", "miniavs", "personas"];
+
 export function IssueDetailModal({
   issue,
   open,
@@ -76,7 +78,15 @@ export function IssueDetailModal({
   const [name, setName] = useState("");
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
+  const [avatarSeed, setAvatarSeed] = useState(0);
   const commentsEndRef = useRef<HTMLDivElement>(null);
+
+  const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
+  const avatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(name || "anon")}-${avatarSeed}`;
+
+  function shuffleAvatar() {
+    setAvatarSeed((prev) => prev + 1);
+  }
 
   useEffect(() => {
     if (issue && open) {
@@ -142,36 +152,35 @@ export function IssueDetailModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-2 flex-wrap">
-              <span
-                className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${typePillColor[type]}`}
-              >
-                {type}
-              </span>
-              <span
-                className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${priorityPillColor[priority]}`}
-              >
-                {priority}
-              </span>
-            </div>
-            <DialogTitle className="text-lg font-semibold text-[#1a1a1a] leading-tight">
-              {issue.title}
-            </DialogTitle>
+        <div>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            <span
+              className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${typePillColor[type]}`}
+            >
+              {type}
+            </span>
+            <span
+              className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${priorityPillColor[priority]}`}
+            >
+              {priority}
+            </span>
           </div>
+          <DialogTitle className="text-lg font-semibold text-[#1a1a1a] leading-tight">
+            {issue.title}
+          </DialogTitle>
 
-          {/* Vote button */}
+          {/* Vote button - horizontal pill below title */}
           <button
             onClick={handleVote}
-            className={`flex flex-col items-center gap-0.5 px-2 py-1 rounded-xl border transition-colors flex-shrink-0 ${
+            className={`mt-3 flex items-center gap-2 px-4 py-2 rounded-full border transition-colors text-sm ${
               voted
-                ? "border-[#c6e135] bg-[#c6e135]/10 text-[#65a30d]"
-                : "border-gray-200 text-gray-400 hover:text-[#65a30d] hover:border-[#c6e135]"
+                ? "bg-[#c6e135]/20 border-[#c6e135] text-[#65a30d]"
+                : "border-gray-200 hover:border-[#c6e135] hover:bg-[#c6e135]/10"
             }`}
           >
             <LuChevronUp className="w-4 h-4" />
-            <span className="text-xs font-semibold">{votes}</span>
+            <span className="font-semibold">{votes}</span>
+            <span className="text-gray-400 text-xs">Vote to prioritize</span>
           </button>
         </div>
 
@@ -273,6 +282,13 @@ export function IssueDetailModal({
 
         {/* Comment input */}
         <div className="border-t border-gray-100 pt-3 flex items-center gap-2">
+          <img
+            src={avatarUrl}
+            alt=""
+            title="Click to change avatar"
+            onClick={shuffleAvatar}
+            className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-[#c6e135] transition-all"
+          />
           <input
             type="text"
             placeholder="Name"

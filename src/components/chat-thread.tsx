@@ -4,6 +4,8 @@ import { LuSend } from "react-icons/lu";
 import { VoteButton } from "./vote-button";
 import type { FeedbackItem, Reply } from "./feedback-shell";
 
+const AVATAR_STYLES = ["adventurer", "avataaars", "bottts", "fun-emoji", "lorelei", "micah", "miniavs", "personas"];
+
 function getAvatarUrl(name: string) {
   return `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`;
 }
@@ -117,6 +119,14 @@ export function ChatThread({
   const [replyText, setReplyText] = useState("");
   const [replyName, setReplyName] = useState("");
   const [sending, setSending] = useState(false);
+  const [avatarSeed, setAvatarSeed] = useState(0);
+
+  const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
+  const replyAvatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(replyName || "anon")}-${avatarSeed}`;
+
+  function shuffleAvatar() {
+    setAvatarSeed((prev) => prev + 1);
+  }
 
   async function handleSendReply() {
     if (!replyText.trim()) return;
@@ -187,7 +197,14 @@ export function ChatThread({
 
       {/* Reply input */}
       <div className="border-t border-gray-100 p-4">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <img
+            src={replyAvatarUrl}
+            alt=""
+            title="Click to change avatar"
+            onClick={shuffleAvatar}
+            className="w-8 h-8 rounded-full bg-gray-100 flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-[#c6e135] transition-all"
+          />
           <input
             value={replyName}
             onChange={(e) => setReplyName(e.target.value)}

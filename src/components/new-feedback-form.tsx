@@ -2,9 +2,7 @@
 import { useState } from "react";
 import { LuPaperclip, LuSend } from "react-icons/lu";
 
-function getAvatarUrl(name: string) {
-  return `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name || "anonymous")}`;
-}
+const AVATAR_STYLES = ["adventurer", "avataaars", "bottts", "fun-emoji", "lorelei", "micah", "miniavs", "personas"];
 
 export function NewFeedbackForm({
   projectId,
@@ -18,6 +16,14 @@ export function NewFeedbackForm({
   const [name, setName] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
+  const [avatarSeed, setAvatarSeed] = useState(0);
+
+  const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
+  const avatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(name || "anon")}-${avatarSeed}`;
+
+  function shuffleAvatar() {
+    setAvatarSeed((prev) => prev + 1);
+  }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
@@ -127,9 +133,11 @@ export function NewFeedbackForm({
       {/* Bottom row: name + avatar + submit */}
       <div className="flex items-center gap-3 pt-2">
         <img
-          src={getAvatarUrl(name)}
+          src={avatarUrl}
           alt=""
-          className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0"
+          title="Click to change avatar"
+          onClick={shuffleAvatar}
+          className="w-10 h-10 rounded-full bg-gray-100 flex-shrink-0 cursor-pointer hover:ring-2 hover:ring-[#c6e135] transition-all"
         />
         <input
           value={name}
