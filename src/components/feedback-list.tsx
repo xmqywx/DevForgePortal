@@ -4,12 +4,12 @@ import { VoteButton } from "./vote-button";
 import type { FeedbackItem } from "./feedback-shell";
 
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
-  const months = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-  ];
-  return `${months[d.getMonth()]} ${d.getDate()}`;
+  const parts = dateStr.split(/[-T ]/);  
+  if (parts.length < 3) return dateStr;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  return `${months[month] ?? "?"} ${day}`;
 }
 
 const typePillColor: Record<string, string> = {

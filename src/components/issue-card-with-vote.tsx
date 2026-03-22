@@ -19,12 +19,16 @@ const typePillColor: Record<string, string> = {
 };
 
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr);
+  // Parse date string directly to avoid timezone hydration mismatch
+  const parts = dateStr.split(/[-T ]/);
+  if (parts.length < 3) return dateStr;
   const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
   ];
-  return `${months[d.getMonth()]} ${d.getDate()}`;
+  const month = parseInt(parts[1], 10) - 1;
+  const day = parseInt(parts[2], 10);
+  return `${months[month] ?? "?"} ${day}`;
 }
 
 export interface IssueWithVotes {
