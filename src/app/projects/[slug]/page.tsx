@@ -4,6 +4,7 @@ import { projects, issues, gitSnapshots } from "@/db/schema";
 import { eq, desc, and, sql } from "drizzle-orm";
 import { StageBadge } from "@/components/stage-badge";
 import { ActivityChart } from "@/components/activity-chart";
+import { MarkdownRenderer } from "@/components/markdown-renderer";
 import {
   LuGithub,
   LuExternalLink,
@@ -238,31 +239,26 @@ export default async function ProjectOverviewPage({
 
       {/* ── Center Column (Main) ── */}
       <div className="space-y-4">
-        {/* Project Header */}
-        <div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-[#1a1a1a]">
-              {project.name}
-            </h1>
-            {project.stage && <StageBadge stage={project.stage} />}
-          </div>
-          {project.description && (
-            <p className="text-gray-500 mt-1 line-clamp-2">
-              {project.description}
-            </p>
-          )}
-          {project.githubUrl && (
-            <a
-              href={project.githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium border border-gray-300 rounded-full hover:bg-gray-50 transition-colors mt-2"
-            >
-              <LuGithub className="w-3.5 h-3.5" />
-              GitHub
-            </a>
-          )}
+        {/* About This Project Card */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-lg font-bold text-[#1a1a1a] mb-3">
+            About This Project
+          </h2>
+          <p className="text-gray-600 leading-relaxed">
+            {project.description || "No description yet."}
+          </p>
         </div>
+
+        {/* README Card */}
+        {project.readme && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <h2 className="text-lg font-bold text-[#1a1a1a] mb-4 flex items-center gap-2">
+              <LuBookOpen className="w-5 h-5 text-gray-400" />
+              README
+            </h2>
+            <MarkdownRenderer content={project.readme} />
+          </div>
+        )}
 
         {/* Activity Chart Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -298,16 +294,6 @@ export default async function ProjectOverviewPage({
             </p>
             <p className="text-xs text-gray-500">Progress</p>
           </div>
-        </div>
-
-        {/* About This Project Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-lg font-bold text-[#1a1a1a] mb-3">
-            About This Project
-          </h2>
-          <p className="text-gray-600 leading-relaxed">
-            {project.description || "No description yet."}
-          </p>
         </div>
       </div>
 

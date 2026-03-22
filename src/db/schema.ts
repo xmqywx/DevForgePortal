@@ -21,6 +21,7 @@ export const projects = sqliteTable("projects", {
   autoSessionSummary: text("auto_session_summary", { enum: ["on", "off", "default"] }).default("default"),
   autoLoadContext: text("auto_load_context", { enum: ["on", "off", "default"] }).default("default"),
   autoUpdateProgress: text("auto_update_progress", { enum: ["on", "off", "default"] }).default("default"),
+  readme: text("readme").default(""),
   createdAt: text("created_at").default(sql`(datetime('now'))`),
   updatedAt: text("updated_at").default(sql`(datetime('now'))`),
 });
