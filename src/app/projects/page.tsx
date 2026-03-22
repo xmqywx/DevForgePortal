@@ -11,7 +11,7 @@ export default async function ProjectsPage() {
     .orderBy(desc(projects.updatedAt));
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-12">
+    <div className="py-12">
       <div className="flex items-baseline gap-3 mb-10">
         <h1 className="text-3xl font-bold">Projects</h1>
         <span className="text-lg text-[#1a1a1a]/40 font-medium">

@@ -38,7 +38,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-[#f0f0e8] text-[#1a1a1a]">
         {/* Sticky Header */}
         <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-black/5">
-          <div className="mx-auto max-w-6xl flex items-center justify-between px-6 h-16">
+          <div className="mx-auto max-w-7xl flex items-center justify-between px-6 h-16">
             <Link href="/" className="flex items-center gap-2.5">
               <span className="flex items-center justify-center w-9 h-9 rounded-lg bg-[#c6e135]">
                 <LuCode className="w-5 h-5 text-[#1a1a1a]" />
@@ -61,11 +61,11 @@ export default function RootLayout({
         </header>
 
         {/* Main Content */}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 mx-auto max-w-7xl w-full px-6">{children}</main>
 
         {/* Footer */}
         <footer className="border-t border-black/5 bg-white/50">
-          <div className="mx-auto max-w-6xl px-6 py-6 flex items-center justify-between text-sm text-[#1a1a1a]/50">
+          <div className="mx-auto max-w-7xl px-6 py-6 flex items-center justify-between text-sm text-[#1a1a1a]/50">
             <span>Built by Ying</span>
             <a
               href="https://github.com/xmqywx"
