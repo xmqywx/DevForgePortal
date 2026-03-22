@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { feedback, feedbackReplies } from "@/db/schema";
+import { feedback, feedbackReplies, issues } from "@/db/schema";
 import { eq, ne, desc, and } from "drizzle-orm";
 import { headers } from "next/headers";
 import { checkRateLimit } from "@/lib/anti-spam";
@@ -54,7 +54,8 @@ export async function POST(request: Request) {
     );
   }
 
-  const result = db
+  // 1. Create feedback
+  const fb = db
     .insert(feedback)
     .values({
       projectId,
@@ -64,9 +65,33 @@ export async function POST(request: Request) {
       authorIp: ip,
       images: images ?? [],
       avatarUrl: avatar_url ?? null,
+      isConverted: true, // auto-converted
     })
     .returning()
     .get();
 
-  return Response.json(result, { status: 201 });
+  // 2. Auto-create issue from feedback
+  const issueType = body.type === "bug" ? "bug" : "feature";
+  const issue = db
+    .insert(issues)
+    .values({
+      projectId,
+      title,
+      description: `**From feedback #${fb.id}** (by ${author_name ?? "匿名"})\n\n${description ?? ""}`,
+      type: issueType,
+      status: "open",
+      priority: "medium",
+      source: "feedback",
+      feedbackId: fb.id,
+    })
+    .returning()
+    .get();
+
+  // 3. Link issue back to feedback
+  db.update(feedback)
+    .set({ issueId: issue.id })
+    .where(eq(feedback.id, fb.id))
+    .run();
+
+  return Response.json({ ...fb, issueId: issue.id }, { status: 201 });
 }
