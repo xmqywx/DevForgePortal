@@ -4,7 +4,7 @@ function isHtml(str: string) {
 
 export function SafeHtml({ content, className }: { content: string; className?: string }) {
   if (isHtml(content)) {
-    return <div className={className} dangerouslySetInnerHTML={{ __html: content }} />;
+    return <div className={`rendered-html ${className ?? ""}`} dangerouslySetInnerHTML={{ __html: content }} />;
   }
-  return <div className={`${className} whitespace-pre-wrap`}>{content}</div>;
+  return <div className={`${className ?? ""} whitespace-pre-wrap`}>{content}</div>;
 }
