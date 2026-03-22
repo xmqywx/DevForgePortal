@@ -1,39 +1,34 @@
-import { db } from "@/db/client";
-import { projects, issues, issueVotes } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+"use client";
+
+import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import { IssuesBoard } from "@/components/issues-board";
+import type { IssueWithVotes } from "@/components/issue-card-with-vote";
 
-export default async function IssuesPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
-  const { slug } = await params;
+export default function IssuesPage() {
+  const params = useParams<{ slug: string }>();
+  const [issues, setIssues] = useState<IssueWithVotes[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const project = db
-    .select()
-    .from(projects)
-    .where(eq(projects.slug, slug))
-    .get();
+  useEffect(() => {
+    async function load() {
+      const res = await fetch(`/api/issues?slug=${params.slug}`);
+      if (res.ok) {
+        const data = await res.json();
+        setIssues(data);
+      }
+      setLoading(false);
+    }
+    load();
+  }, [params.slug]);
 
-  if (!project) return null;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-6 h-6 border-2 border-[#c6e135] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
-  const allIssues = db
-    .select()
-    .from(issues)
-    .where(eq(issues.projectId, project.id))
-    .orderBy(desc(issues.createdAt))
-    .all();
-
-  // Attach vote counts
-  const issuesWithVotes = allIssues.map((issue) => {
-    const votes = db
-      .select()
-      .from(issueVotes)
-      .where(eq(issueVotes.issueId, issue.id))
-      .all().length;
-    return { ...issue, votes };
-  });
-
-  return <IssuesBoard issues={issuesWithVotes} />;
+  return <IssuesBoard issues={issues} />;
 }
