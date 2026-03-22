@@ -1,25 +1,63 @@
 import { db } from "@/db/client";
-import { projects, issues, feedback } from "@/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { projects, milestones } from "@/db/schema";
+import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { LuMessageSquare, LuMap } from "react-icons/lu";
+import {
+  LuLightbulb,
+  LuRocket,
+  LuPlug,
+  LuFlag,
+  LuRefreshCw,
+} from "react-icons/lu";
 
-function formatDate(dateStr: string | null) {
-  if (!dateStr) return "";
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+function formatDate(dateStr: string) {
+  // "2026-Q2" → "Q2 2026"
+  const qMatch = dateStr.match(/^(\d{4})-Q(\d)$/);
+  if (qMatch) return `Q${qMatch[2]} ${qMatch[1]}`;
+
+  // "2026-03-22" or "2026-03" → "Mar 2026"
+  const parts = dateStr.split("-");
+  const months = [
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+  ];
+  if (parts.length >= 2) {
+    const monthIdx = parseInt(parts[1], 10) - 1;
+    return `${months[monthIdx]} ${parts[0]}`;
+  }
+  return dateStr;
 }
 
-type TypeKey = "bug" | "feature" | "improvement" | "task" | "question" | "note";
+function StatusIcon({
+  status,
+  icon,
+}: {
+  status: string | null;
+  icon: string | null;
+}) {
+  const color =
+    status === "completed"
+      ? "#65a30d"
+      : status === "current"
+        ? "#3b82f6"
+        : "#9ca3af";
 
-const typePillColors: Record<TypeKey, string> = {
-  bug: "bg-red-100 text-red-700",
-  feature: "bg-[#c6e135]/30 text-[#5a6a00]",
-  improvement: "bg-blue-100 text-blue-700",
-  task: "bg-gray-100 text-gray-600",
-  question: "bg-purple-100 text-purple-700",
-  note: "bg-gray-100 text-gray-600",
-};
+  const className = "w-4 h-4";
+  const style = { color };
+
+  switch (icon) {
+    case "idea":
+      return <LuLightbulb className={className} style={style} />;
+    case "launch":
+      return <LuRocket className={className} style={style} />;
+    case "integration":
+      return <LuPlug className={className} style={style} />;
+    case "pivot":
+      return <LuRefreshCw className={className} style={style} />;
+    default:
+      return <LuFlag className={className} style={style} />;
+  }
+}
 
 export default async function RoadmapPage({
   params,
@@ -36,153 +74,90 @@ export default async function RoadmapPage({
 
   if (!project) notFound();
 
-  // Get all issues for this project
-  const allIssues = db
+  const items = db
     .select()
-    .from(issues)
-    .where(eq(issues.projectId, project.id))
+    .from(milestones)
+    .where(eq(milestones.projectId, project.id))
+    .orderBy(asc(milestones.date))
     .all();
-
-  // Get all feedback for this project (non-converted, with relevant statuses)
-  const allFeedback = db
-    .select()
-    .from(feedback)
-    .where(eq(feedback.projectId, project.id))
-    .all();
-
-  // Build a set of feedback IDs that are linked to issues
-  const linkedFeedbackIds = new Set(
-    allIssues.filter((i) => i.feedbackId).map((i) => i.feedbackId)
-  );
-
-  // Normalize issues and unconverted feedback into a common shape
-  type RoadmapItem = {
-    id: number;
-    title: string;
-    type: string;
-    status: string;
-    date: string | null;
-    fromFeedback: boolean;
-  };
-
-  const items: RoadmapItem[] = [];
-
-  for (const issue of allIssues) {
-    items.push({
-      id: issue.id,
-      title: issue.title,
-      type: issue.type ?? "task",
-      status: issue.status ?? "open",
-      date: issue.updatedAt ?? issue.createdAt ?? null,
-      fromFeedback: issue.source === "feedback",
-    });
-  }
-
-  // Include unconverted feedback that isn't already linked to an issue
-  for (const fb of allFeedback) {
-    if (fb.isConverted || linkedFeedbackIds.has(fb.id)) continue;
-    if (fb.status === "spam" || fb.status === "wont-fix") continue;
-    items.push({
-      id: fb.id + 100000, // avoid id collision
-      title: fb.title,
-      type: fb.type ?? "feature",
-      status: fb.status ?? "open",
-      date: fb.updatedAt ?? fb.createdAt ?? null,
-      fromFeedback: true,
-    });
-  }
-
-  // Group by column
-  const planned = items.filter(
-    (i) => i.status === "open" || i.status === "under-review" || i.status === "open"
-  );
-  const inProgress = items.filter((i) => i.status === "in-progress");
-  const completed = items.filter((i) => i.status === "resolved");
-
-  const columns = [
-    {
-      title: "Planned",
-      items: planned,
-      borderClass: "border-gray-300",
-      dotClass: "bg-gray-400",
-    },
-    {
-      title: "In Progress",
-      items: inProgress,
-      borderClass: "border-[#c6e135]",
-      dotClass: "bg-[#c6e135]",
-    },
-    {
-      title: "Completed",
-      items: completed,
-      borderClass: "border-green-500",
-      dotClass: "bg-green-500",
-    },
-  ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-      {columns.map((col) => (
-        <div
-          key={col.title}
-          className={`bg-white rounded-2xl shadow-sm border-t-4 ${col.borderClass} p-4`}
-        >
-          {/* Column header */}
-          <div className="flex items-center gap-2 mb-4">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${col.dotClass}`}
-            />
-            <h3 className="font-semibold text-sm text-[#1a1a1a]">
-              {col.title}
-            </h3>
-            <span className="ml-auto text-xs font-medium text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">
-              {col.items.length}
-            </span>
-          </div>
+    <div>
+      <h1 className="text-2xl font-bold mb-8">Roadmap</h1>
 
-          {/* Cards */}
-          {col.items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <LuMap className="w-6 h-6 text-gray-200 mb-2" />
-              <p className="text-xs text-gray-400">No items</p>
-            </div>
-          ) : (
-            <div className="space-y-2.5">
-              {col.items.map((item) => (
+      {/* Timeline */}
+      <div className="relative">
+        {/* Vertical center line */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 -translate-x-1/2" />
+
+        {items.map((item, i) => {
+          const isLeft = i % 2 === 0;
+          const statusColor =
+            item.status === "completed"
+              ? "#c6e135"
+              : item.status === "current"
+                ? "#3b82f6"
+                : "#d1d5db";
+
+          return (
+            <div key={item.id} className="relative flex items-center mb-12">
+              {/* Center dot */}
+              <div className="absolute left-1/2 -translate-x-1/2 z-10">
                 <div
-                  key={item.id}
-                  className="bg-white rounded-xl p-3 shadow-sm border border-gray-100"
+                  className="w-4 h-4 rounded-full border-4 border-white shadow-sm"
+                  style={{ backgroundColor: statusColor }}
+                />
+              </div>
+
+              {/* Date badge - centered above dot */}
+              <div className="absolute left-1/2 -translate-x-1/2 -top-8">
+                <span
+                  className="px-3 py-1 rounded-full text-xs font-medium text-white whitespace-nowrap"
+                  style={{ backgroundColor: statusColor }}
                 >
-                  <p className="font-medium text-sm text-[#1a1a1a] leading-snug">
-                    {item.title}
+                  {formatDate(item.date)}
+                </span>
+              </div>
+
+              {/* Content card */}
+              <div className={`w-[45%] ${isLeft ? "pr-8" : "ml-auto pl-8"}`}>
+                <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-2 mb-2">
+                    <StatusIcon status={item.status} icon={item.icon} />
+                    <h3 className="font-bold text-[#1a1a1a]">{item.title}</h3>
+                  </div>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {item.description}
                   </p>
-                  <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <div className="mt-3">
                     <span
-                      className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                        typePillColors[item.type as TypeKey] ??
-                        "bg-gray-100 text-gray-600"
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                        item.status === "completed"
+                          ? "bg-[#c6e135]/20 text-[#65a30d]"
+                          : item.status === "current"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-100 text-gray-500"
                       }`}
                     >
-                      {item.type}
+                      {item.status === "completed"
+                        ? "Completed"
+                        : item.status === "current"
+                          ? "In Progress"
+                          : "Planned"}
                     </span>
-                    {item.date && (
-                      <span className="text-[11px] text-gray-400">
-                        {formatDate(item.date)}
-                      </span>
-                    )}
-                    {item.fromFeedback && (
-                      <span className="inline-flex items-center gap-1 text-[11px] text-gray-400">
-                        <LuMessageSquare className="w-3 h-3" />
-                        from feedback
-                      </span>
-                    )}
                   </div>
                 </div>
-              ))}
+              </div>
             </div>
-          )}
-        </div>
-      ))}
+          );
+        })}
+
+        {items.length === 0 && (
+          <p className="text-center text-gray-400 py-16">
+            No milestones yet.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
