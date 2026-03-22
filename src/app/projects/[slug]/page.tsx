@@ -19,6 +19,7 @@ import {
   LuInfo,
   LuTag,
   LuBookOpen,
+  LuMessageSquare,
 } from "react-icons/lu";
 
 function formatDate(dateStr: string) {
@@ -260,45 +261,49 @@ export default async function ProjectOverviewPage({
           </div>
         )}
 
-        {/* Activity Chart Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-[#1a1a1a]">Activity</h2>
-            <span className="text-xs text-gray-400 font-medium">
-              Last 30 days
-            </span>
-          </div>
-          <ActivityChart openedData={openedData} resolvedData={resolvedData} />
-        </div>
-
-        {/* Quick Stats Row */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center">
-            <LuGitCommitHorizontal className="w-5 h-5 mx-auto text-gray-400 mb-1" />
-            <p className="text-2xl font-bold text-[#1a1a1a]">
-              {gitSnap?.totalCommits ?? 0}
-            </p>
-            <p className="text-xs text-gray-500">Commits</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center">
-            <LuCircleAlert className="w-5 h-5 mx-auto text-gray-400 mb-1" />
-            <p className="text-2xl font-bold text-[#1a1a1a]">
-              {openIssues.length}
-            </p>
-            <p className="text-xs text-gray-500">Open Issues</p>
-          </div>
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 text-center">
-            <LuTrendingUp className="w-5 h-5 mx-auto text-gray-400 mb-1" />
-            <p className="text-2xl font-bold text-[#1a1a1a]">
-              {project.progressPct ?? 0}%
-            </p>
-            <p className="text-xs text-gray-500">Progress</p>
-          </div>
-        </div>
       </div>
 
       {/* ── Right Column ── */}
       <div className="space-y-4">
+        {/* FEEDBACK CTA */}
+        <a
+          href={`/projects/${slug}/feedback`}
+          className="flex items-center justify-center gap-2 w-full bg-[#c6e135] text-[#1a1a1a] font-semibold py-3 rounded-2xl hover:bg-[#b5d025] transition-colors shadow-sm text-sm"
+        >
+          <LuMessageSquare className="w-4 h-4" />
+          Leave Feedback
+        </a>
+
+        {/* QUICK STATS */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider mb-3">
+            Stats
+          </h3>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500 flex items-center gap-1.5"><LuGitCommitHorizontal className="w-3.5 h-3.5" />Commits</span>
+              <span className="font-bold">{gitSnap?.totalCommits ?? 0}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500 flex items-center gap-1.5"><LuCircleAlert className="w-3.5 h-3.5" />Open Issues</span>
+              <span className="font-bold">{openIssues.length}</span>
+            </div>
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-500 flex items-center gap-1.5"><LuTrendingUp className="w-3.5 h-3.5" />Progress</span>
+              <span className="font-bold">{project.progressPct ?? 0}%</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ACTIVITY TREND */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+          <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-2">
+            <LuActivity className="w-3.5 h-3.5" />
+            Activity
+          </h3>
+          <ActivityChart openedData={openedData} resolvedData={resolvedData} />
+        </div>
+
         {/* RELEASE */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-3">
