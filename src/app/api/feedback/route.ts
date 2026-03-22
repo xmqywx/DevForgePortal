@@ -45,7 +45,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { projectId, title, description, author_name, images } = body;
+  const { projectId, title, description, author_name, images, avatar_url } = body;
 
   if (!projectId || !title) {
     return Response.json(
@@ -63,6 +63,7 @@ export async function POST(request: Request) {
       authorName: author_name ?? "匿名",
       authorIp: ip,
       images: images ?? [],
+      avatarUrl: avatar_url ?? null,
     })
     .returning()
     .get();

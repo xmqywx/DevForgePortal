@@ -63,6 +63,7 @@ export function NewFeedbackForm({
         description: content,
         author_name: name || "Anonymous",
         images,
+        avatar_url: avatarUrl,
       }),
     });
     setSubmitting(false);

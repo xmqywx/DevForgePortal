@@ -15,6 +15,7 @@ export interface FeedbackItem {
   status: string;
   upvotes: number;
   images: string[];
+  avatarUrl: string | null;
   createdAt: string;
   replies: Reply[];
 }

@@ -83,6 +83,7 @@ export const feedback = sqliteTable("feedback", {
   images: text("images", { mode: "json" }).$type<string[]>().default([]),
   isConverted: integer("is_converted", { mode: "boolean" }).default(false),
   issueId: integer("issue_id"),
+  avatarUrl: text("avatar_url"),
   createdAt: text("created_at").default(sql`(datetime('now'))`),
   updatedAt: text("updated_at").default(sql`(datetime('now'))`),
 });

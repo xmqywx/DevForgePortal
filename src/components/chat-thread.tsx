@@ -194,6 +194,7 @@ export function ChatThread({
           content={originalContent}
           images={feedback.images}
           date={feedback.createdAt}
+          avatarUrl={feedback.avatarUrl}
         >
           <div className="mt-1.5">
             <VoteButton feedbackId={feedback.id} initialVotes={feedback.upvotes ?? 0} />
