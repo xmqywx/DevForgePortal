@@ -5,6 +5,7 @@ import { VoteButton } from "./vote-button";
 import { SafeHtml } from "./safe-html";
 import { RichTextEditor } from "./rich-text-editor";
 import type { FeedbackItem, Reply } from "./feedback-shell";
+import { useI18n } from "@/i18n/context";
 
 const AVATAR_STYLES = ["adventurer", "avataaars", "bottts", "fun-emoji", "lorelei", "micah", "miniavs", "personas"];
 
@@ -13,7 +14,7 @@ function getAvatarUrl(name: string) {
 }
 
 function formatDate(dateStr: string) {
-  const parts = dateStr.split(/[-T ]/);  
+  const parts = dateStr.split(/[-T ]/);
   if (parts.length < 3) return dateStr;
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const month = parseInt(parts[1], 10) - 1;
@@ -133,6 +134,7 @@ export function ChatThread({
     if (typeof window !== "undefined") return parseInt(localStorage.getItem("devforge_avatar_seed") || "0", 10);
     return 0;
   });
+  const { t } = useI18n();
 
   const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
   const replyAvatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(replyName || "anon")}-${avatarSeed}`;
@@ -248,7 +250,7 @@ export function ChatThread({
               onClick={() => setExpanded(true)}
               className="flex-1 text-left text-sm text-gray-400 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 hover:border-[#c6e135] transition-colors"
             >
-              Write a reply...
+              {t("feedback.writeReply")}
             </button>
           </div>
         ) : (
@@ -264,7 +266,7 @@ export function ChatThread({
               <input
                 value={replyName}
                 onChange={(e) => updateReplyName(e.target.value)}
-                placeholder="Your name (optional)"
+                placeholder={t("feedback.nameLabel")}
                 className="flex-1 text-sm px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#c6e135]"
               />
               <button onClick={() => { setExpanded(false); setReplyText(""); setImages([]); }} className="p-1.5 text-gray-400 hover:text-gray-600">
@@ -274,7 +276,7 @@ export function ChatThread({
 
             <RichTextEditor
               compact
-              placeholder="Write a reply..."
+              placeholder={t("feedback.writeReply")}
               onChange={(html) => setReplyText(html)}
             />
 
@@ -297,7 +299,7 @@ export function ChatThread({
             <div className="flex items-center justify-between">
               <label className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 cursor-pointer transition-colors">
                 <LuPaperclip className="w-4 h-4" />
-                <span>Attach</span>
+                <span>{t("issues.attach")}</span>
                 <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
               </label>
               <button
@@ -306,7 +308,7 @@ export function ChatThread({
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#c6e135] text-[#1a1a1a] font-medium text-sm hover:bg-[#b5d030] disabled:opacity-40 transition-colors"
               >
                 <LuSend className="w-4 h-4" />
-                {sending ? "Sending..." : "Send"}
+                {sending ? t("issues.sending") : t("issues.send")}
               </button>
             </div>
           </div>

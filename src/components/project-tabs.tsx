@@ -2,18 +2,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useI18n } from "@/i18n/context";
 
 const TABS = [
-  { label: "Overview", href: "" },
-  { label: "Roadmap", href: "/roadmap" },
-  { label: "Updates", href: "/updates" },
-  { label: "Issues", href: "/issues" },
-  { label: "Feedback", href: "/feedback" },
+  { key: "tabs.overview", href: "" },
+  { key: "tabs.roadmap", href: "/roadmap" },
+  { key: "tabs.updates", href: "/updates" },
+  { key: "tabs.issues", href: "/issues" },
+  { key: "tabs.feedback", href: "/feedback" },
 ];
 
 export function ProjectTabs({ slug }: { slug: string }) {
   const pathname = usePathname();
   const basePath = `/projects/${slug}`;
+  const { t } = useI18n();
 
   return (
     <nav className="flex items-center gap-1.5 overflow-x-auto pb-1">
@@ -26,7 +28,7 @@ export function ProjectTabs({ slug }: { slug: string }) {
 
         return (
           <Link
-            key={tab.label}
+            key={tab.key}
             href={href}
             className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
               isActive
@@ -34,7 +36,7 @@ export function ProjectTabs({ slug }: { slug: string }) {
                 : "text-[#1a1a1a]/60 hover:text-[#1a1a1a] hover:bg-black/5"
             }`}
           >
-            {tab.label}
+            {t(tab.key)}
           </Link>
         );
       })}

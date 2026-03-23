@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { LuChevronUp, LuMessageSquare } from "react-icons/lu";
+import { useI18n } from "@/i18n/context";
 
 const priorityDot: Record<string, string> = {
   high: "bg-red-500",
@@ -53,6 +54,7 @@ export function IssueCardWithVote({
 }) {
   const [votes, setVotes] = useState(issue.votes);
   const [voted, setVoted] = useState(false);
+  const { t } = useI18n();
 
   const prio = issue.priority ?? "medium";
   const type = issue.type ?? "task";
@@ -85,7 +87,7 @@ export function IssueCardWithVote({
         >
           <LuChevronUp className="w-4 h-4" />
           <span className="text-xs font-medium">{votes}</span>
-          <span className="text-[10px] text-gray-400">votes</span>
+          <span className="text-[10px] text-gray-400">{t("issues.votes")}</span>
         </button>
 
         {/* Content */}

@@ -5,6 +5,7 @@ import { eq, desc, and, sql } from "drizzle-orm";
 import { StageBadge } from "@/components/stage-badge";
 import { ActivityChart } from "@/components/activity-chart";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { T } from "@/components/t-text";
 import {
   LuGithub,
   LuExternalLink,
@@ -145,28 +146,28 @@ export default async function ProjectOverviewPage({
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "240px 1fr 240px", gap: "24px" }}>
-      {/* ── Left Column ── */}
+      {/* -- Left Column -- */}
       <div className="space-y-4">
         {/* PROJECT INFO */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-4">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5">
             <LuInfo className="w-3.5 h-3.5" />
-            Project Info
+            <T k="project.projectInfo" />
           </h3>
           <div className="space-y-3 text-sm">
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Stage</span>
+              <span className="text-gray-500"><T k="project.stage" /></span>
               {project.stage ? <StageBadge stage={project.stage} /> : <span className="text-gray-400">--</span>}
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Priority</span>
+              <span className="text-gray-500"><T k="project.priority" /></span>
               <span className="font-medium capitalize">
                 {project.priority ?? "medium"}
               </span>
             </div>
             {project.createdAt && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Created</span>
+                <span className="text-gray-500"><T k="project.created" /></span>
                 <span className="font-medium">
                   {formatDate(project.createdAt)}
                 </span>
@@ -174,7 +175,7 @@ export default async function ProjectOverviewPage({
             )}
             {project.updatedAt && (
               <div className="flex items-center justify-between">
-                <span className="text-gray-500">Updated</span>
+                <span className="text-gray-500"><T k="project.updated" /></span>
                 <span className="font-medium">
                   {formatDate(project.updatedAt)}
                 </span>
@@ -187,17 +188,17 @@ export default async function ProjectOverviewPage({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-3">
             <LuActivity className="w-3.5 h-3.5" />
-            Activity Trend
+            <T k="project.activityTrend" />
           </h3>
           <Sparkline values={weeklyCommits} />
-          <p className="text-[10px] text-gray-400 mt-1.5 text-center">Commits per week (8 wk)</p>
+          <p className="text-[10px] text-gray-400 mt-1.5 text-center"><T k="project.commitsPerWeek" /></p>
         </div>
 
         {/* LINKS */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-3">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5">
             <LuLink className="w-3.5 h-3.5" />
-            Links
+            <T k="project.links" />
           </h3>
           {project.githubUrl ? (
             <a
@@ -207,12 +208,12 @@ export default async function ProjectOverviewPage({
               className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#1a1a1a] transition-colors"
             >
               <LuGithub className="w-4 h-4 flex-shrink-0" />
-              GitHub Repository
+              <T k="project.githubRepo" />
             </a>
           ) : (
             <span className="flex items-center gap-2 text-sm text-gray-400">
               <LuGithub className="w-4 h-4 flex-shrink-0" />
-              GitHub Repository
+              <T k="project.githubRepo" />
             </span>
           )}
           {project.websiteUrl ? (
@@ -223,27 +224,27 @@ export default async function ProjectOverviewPage({
               className="flex items-center gap-2 text-sm text-gray-700 hover:text-[#1a1a1a] transition-colors"
             >
               <LuExternalLink className="w-4 h-4 flex-shrink-0" />
-              Website
+              <T k="project.website" />
             </a>
           ) : (
             <span className="flex items-center gap-2 text-sm text-gray-400">
               <LuExternalLink className="w-4 h-4 flex-shrink-0" />
-              Website
+              <T k="project.website" />
             </span>
           )}
           <span className="flex items-center gap-2 text-sm text-gray-400">
             <LuBookOpen className="w-4 h-4 flex-shrink-0" />
-            Docs
+            <T k="project.docs" />
           </span>
         </div>
       </div>
 
-      {/* ── Center Column (Main) ── */}
+      {/* -- Center Column (Main) -- */}
       <div className="space-y-4">
         {/* About This Project Card */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-lg font-bold text-[#1a1a1a] mb-3">
-            About This Project
+            <T k="project.about" />
           </h2>
           <p className="text-gray-600 leading-relaxed">
             {project.description || "No description yet."}
@@ -255,7 +256,7 @@ export default async function ProjectOverviewPage({
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <h2 className="text-lg font-bold text-[#1a1a1a] mb-4 flex items-center gap-2">
               <LuBookOpen className="w-5 h-5 text-gray-400" />
-              README
+              <T k="project.readme" />
             </h2>
             <MarkdownRenderer content={project.readme} />
           </div>
@@ -263,7 +264,7 @@ export default async function ProjectOverviewPage({
 
       </div>
 
-      {/* ── Right Column ── */}
+      {/* -- Right Column -- */}
       <div className="space-y-4">
         {/* FEEDBACK CTA */}
         <a
@@ -271,25 +272,25 @@ export default async function ProjectOverviewPage({
           className="flex items-center justify-center gap-2 w-full bg-[#c6e135] text-[#1a1a1a] font-semibold py-3 rounded-2xl hover:bg-[#b5d025] transition-colors shadow-sm text-sm"
         >
           <LuMessageSquare className="w-4 h-4" />
-          Leave Feedback
+          <T k="project.leaveFeedback" />
         </a>
 
         {/* QUICK STATS */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider mb-3">
-            Stats
+            <T k="project.stats" />
           </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500 flex items-center gap-1.5"><LuGitCommitHorizontal className="w-3.5 h-3.5" />Commits</span>
+              <span className="text-gray-500 flex items-center gap-1.5"><LuGitCommitHorizontal className="w-3.5 h-3.5" /><T k="project.commits" /></span>
               <span className="font-bold">{gitSnap?.totalCommits ?? 0}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500 flex items-center gap-1.5"><LuCircleAlert className="w-3.5 h-3.5" />Open Issues</span>
+              <span className="text-gray-500 flex items-center gap-1.5"><LuCircleAlert className="w-3.5 h-3.5" /><T k="project.openIssues" /></span>
               <span className="font-bold">{openIssues.length}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-500 flex items-center gap-1.5"><LuTrendingUp className="w-3.5 h-3.5" />Progress</span>
+              <span className="text-gray-500 flex items-center gap-1.5"><LuTrendingUp className="w-3.5 h-3.5" /><T k="project.progress" /></span>
               <span className="font-bold">{project.progressPct ?? 0}%</span>
             </div>
           </div>
@@ -299,7 +300,7 @@ export default async function ProjectOverviewPage({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-2">
             <LuActivity className="w-3.5 h-3.5" />
-            Activity
+            <T k="project.activity" />
           </h3>
           <ActivityChart openedData={openedData} resolvedData={resolvedData} />
         </div>
@@ -308,11 +309,11 @@ export default async function ProjectOverviewPage({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-3">
             <LuPackage className="w-3.5 h-3.5" />
-            Release
+            <T k="project.release" />
           </h3>
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium text-[#1a1a1a]">
-              Latest: {project.stage === "live" ? "v1.0.0" : project.stage ?? "idea"}
+              <T k="project.latest" />: {project.stage === "live" ? "v1.0.0" : project.stage ?? "idea"}
             </span>
           </div>
           {project.updatedAt && (
@@ -326,7 +327,7 @@ export default async function ProjectOverviewPage({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-3">
             <LuTag className="w-3.5 h-3.5" />
-            Labels
+            <T k="project.labels" />
           </h3>
           <div className="flex flex-wrap gap-1.5">
             {project.stage && <StageBadge stage={project.stage} />}
@@ -348,7 +349,7 @@ export default async function ProjectOverviewPage({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 space-y-3">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5">
             <LuBookOpen className="w-3.5 h-3.5" />
-            Resources
+            <T k="project.resources" />
           </h3>
           {project.githubUrl && (
             <a
@@ -369,12 +370,12 @@ export default async function ProjectOverviewPage({
               className="flex items-center gap-2.5 text-sm text-gray-700 hover:text-[#1a1a1a] transition-colors"
             >
               <LuExternalLink className="w-4 h-4 flex-shrink-0" />
-              Website
+              <T k="project.website" />
             </a>
           )}
           <div className="flex items-center gap-2.5 text-sm text-gray-400">
             <LuFileText className="w-4 h-4 flex-shrink-0" />
-            Docs (coming soon)
+            <T k="project.docsComingSoon" />
           </div>
         </div>
 
@@ -382,10 +383,10 @@ export default async function ProjectOverviewPage({
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
           <h3 className="text-xs font-semibold text-[#1a1a1a]/60 uppercase tracking-wider flex items-center gap-1.5 mb-3">
             <LuUsers className="w-3.5 h-3.5" />
-            Contributors
+            <T k="project.contributors" />
           </h3>
           <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-600">1 contributor</span>
+            <span className="text-sm text-gray-600">1 <T k="project.contributor" /></span>
           </div>
         </div>
       </div>

@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { LuPaperclip, LuSend } from "react-icons/lu";
 import { RichTextEditor } from "./rich-text-editor";
+import { useI18n } from "@/i18n/context";
 
 const AVATAR_STYLES = ["adventurer", "avataaars", "bottts", "fun-emoji", "lorelei", "micah", "miniavs", "personas"];
 
@@ -24,6 +25,7 @@ export function NewFeedbackForm({
     if (typeof window !== "undefined") return parseInt(localStorage.getItem("devforge_avatar_seed") || "0", 10);
     return 0;
   });
+  const { t } = useI18n();
 
   const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
   const avatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(name || "anon")}-${avatarSeed}`;
@@ -76,12 +78,12 @@ export function NewFeedbackForm({
       onSubmit={handleSubmit}
       className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5"
     >
-      <h3 className="font-bold text-lg text-[#1a1a1a]">New Feedback</h3>
+      <h3 className="font-bold text-lg text-[#1a1a1a]">{t("feedback.newFeedback")}</h3>
 
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Title <span className="text-red-400">*</span>
+          {t("feedback.titleLabel")} <span className="text-red-400">*</span>
         </label>
         <input
           value={title}
@@ -95,7 +97,7 @@ export function NewFeedbackForm({
       {/* Content */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Content <span className="text-red-400">*</span>
+          {t("feedback.contentLabel")} <span className="text-red-400">*</span>
         </label>
         <RichTextEditor
           placeholder="Describe in detail..."
@@ -106,7 +108,7 @@ export function NewFeedbackForm({
       {/* Image upload */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Images
+          {t("feedback.screenshots")}
         </label>
         {images.length > 0 && (
           <div className="flex gap-2 mb-2 flex-wrap">
@@ -132,7 +134,7 @@ export function NewFeedbackForm({
         )}
         <label className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 cursor-pointer transition-colors">
           <LuPaperclip className="w-4 h-4" />
-          Attach images
+          {t("feedback.clickUpload")}
           <input
             type="file"
             multiple
@@ -165,7 +167,7 @@ export function NewFeedbackForm({
           className="inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium bg-[#c6e135] text-[#1a1a1a] rounded-xl hover:bg-[#b5d025] disabled:opacity-50 transition-colors"
         >
           <LuSend className="w-4 h-4" />
-          Submit Feedback
+          {t("feedback.submitFeedback")}
         </button>
       </div>
     </form>

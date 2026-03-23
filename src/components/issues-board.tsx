@@ -3,38 +3,40 @@
 import { useState } from "react";
 import { IssueCardWithVote, type IssueWithVotes } from "./issue-card-with-vote";
 import { IssueDetailModal } from "./issue-detail-modal";
-
-const columns = [
-  {
-    key: "open",
-    title: "Open",
-    border: "border-t-4 border-amber-400",
-    filter: (i: IssueWithVotes) => i.status === "open",
-  },
-  {
-    key: "in-progress",
-    title: "In Progress",
-    border: "border-t-4 border-[#c6e135]",
-    filter: (i: IssueWithVotes) => i.status === "in-progress",
-  },
-  {
-    key: "done",
-    title: "Done",
-    border: "border-t-4 border-green-500",
-    filter: (i: IssueWithVotes) => i.status === "resolved",
-  },
-  {
-    key: "closed",
-    title: "Closed",
-    border: "border-t-4 border-gray-400",
-    filter: (i: IssueWithVotes) =>
-      i.status === "wont-fix" || i.status === "deferred" || i.status === "closed",
-  },
-] as const;
+import { useI18n } from "@/i18n/context";
 
 export function IssuesBoard({ issues }: { issues: IssueWithVotes[] }) {
   const [selectedIssue, setSelectedIssue] = useState<IssueWithVotes | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const { t } = useI18n();
+
+  const columns = [
+    {
+      key: "open",
+      title: t("issues.open"),
+      border: "border-t-4 border-amber-400",
+      filter: (i: IssueWithVotes) => i.status === "open",
+    },
+    {
+      key: "in-progress",
+      title: t("issues.inProgress"),
+      border: "border-t-4 border-[#c6e135]",
+      filter: (i: IssueWithVotes) => i.status === "in-progress",
+    },
+    {
+      key: "done",
+      title: t("issues.done"),
+      border: "border-t-4 border-green-500",
+      filter: (i: IssueWithVotes) => i.status === "resolved",
+    },
+    {
+      key: "closed",
+      title: t("issues.closed"),
+      border: "border-t-4 border-gray-400",
+      filter: (i: IssueWithVotes) =>
+        i.status === "wont-fix" || i.status === "deferred" || i.status === "closed",
+    },
+  ];
 
   function openIssue(issue: IssueWithVotes) {
     setSelectedIssue(issue);
@@ -75,7 +77,7 @@ export function IssuesBoard({ issues }: { issues: IssueWithVotes[] }) {
                 ))}
                 {colIssues.length === 0 && (
                   <p className="text-xs text-gray-300 text-center py-4">
-                    No issues
+                    {t("issues.noIssues")}
                   </p>
                 )}
               </div>

@@ -4,6 +4,7 @@ import { eq, desc } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { LuRocket, LuDownload } from "react-icons/lu";
 import { MarkdownRenderer } from "@/components/markdown-renderer";
+import { T } from "@/components/t-text";
 
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "";
@@ -38,16 +39,16 @@ export default async function UpdatesPage({
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <LuRocket className="w-10 h-10 text-gray-300 mb-4" />
         <h2 className="text-xl font-bold text-[#1a1a1a] mb-2">
-          Updates & Releases
+          <T k="updates.title" />
         </h2>
-        <p className="text-gray-400">No releases yet</p>
+        <p className="text-gray-400"><T k="updates.noReleases" /></p>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-bold text-[#1a1a1a]">Updates & Releases</h2>
+      <h2 className="text-xl font-bold text-[#1a1a1a]"><T k="updates.title" /></h2>
 
       <div className="relative space-y-6">
         {/* Timeline line */}
@@ -89,7 +90,7 @@ export default async function UpdatesPage({
                     className="inline-flex items-center gap-2 text-sm font-medium text-[#5a6a00] hover:text-[#3d4700] transition-colors"
                   >
                     <LuDownload className="w-4 h-4" />
-                    Download
+                    <T k="updates.download" />
                   </a>
                 </div>
               )}

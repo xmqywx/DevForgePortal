@@ -4,6 +4,7 @@ import { LuPlus, LuArrowLeft, LuSearch, LuChevronLeft, LuChevronRight } from "re
 import { FeedbackList } from "@/components/feedback-list";
 import { ChatThread } from "@/components/chat-thread";
 import { NewFeedbackForm } from "@/components/new-feedback-form";
+import { useI18n } from "@/i18n/context";
 
 export interface FeedbackItem {
   id: number;
@@ -38,6 +39,7 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
   const [items, setItems] = useState<FeedbackItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const { t } = useI18n();
 
   // Search, sort, filter, pagination state
   const [search, setSearch] = useState("");
@@ -109,7 +111,7 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
     <div>
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-[#1a1a1a]">Feedback</h2>
+        <h2 className="text-xl font-bold text-[#1a1a1a]">{t("feedback.title")}</h2>
       </div>
 
       {/* Views */}
@@ -124,7 +126,7 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Search by name or title..."
+                  placeholder={t("feedback.search")}
                   className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl bg-white text-sm focus:outline-none focus:border-[#c6e135]"
                 />
               </div>
@@ -132,7 +134,7 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
                 onClick={() => setView("new")}
                 className="flex items-center gap-2 bg-[#c6e135] text-[#1a1a1a] font-semibold px-4 py-2.5 rounded-xl hover:bg-[#b5d025] text-sm whitespace-nowrap"
               >
-                <LuPlus className="w-4 h-4" /> New Feedback
+                <LuPlus className="w-4 h-4" /> {t("feedback.newFeedback")}
               </button>
             </div>
 
@@ -141,7 +143,7 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
               {/* Sort */}
               <div className="flex items-center gap-1">
                 <span className="text-xs text-gray-400 mr-1">Sort:</span>
-                {([{k:"votes",l:"Most Voted"},{k:"newest",l:"Newest"},{k:"oldest",l:"Oldest"}] as const).map(s => (
+                {([{k:"votes",l:t("feedback.sortMostVoted")},{k:"newest",l:t("feedback.sortNewest")},{k:"oldest",l:t("feedback.sortOldest")}] as const).map(s => (
                   <button key={s.k} onClick={() => setSortBy(s.k as "votes" | "newest" | "oldest")}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       sortBy === s.k ? "bg-[#c6e135] text-[#1a1a1a]" : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
@@ -152,11 +154,11 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
               {/* Type filter */}
               <div className="flex items-center gap-1">
                 <span className="text-xs text-gray-400 mr-1">Type:</span>
-                {["all","bug","feature","improvement","question"].map(t => (
-                  <button key={t} onClick={() => setFilterType(t)}
+                {["all","bug","feature","improvement","question"].map(tp => (
+                  <button key={tp} onClick={() => setFilterType(tp)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors capitalize ${
-                      filterType === t ? "bg-[#c6e135] text-[#1a1a1a]" : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
-                    }`}>{t}</button>
+                      filterType === tp ? "bg-[#c6e135] text-[#1a1a1a]" : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
+                    }`}>{tp === "all" ? t("feedback.typeAll") : tp}</button>
                 ))}
               </div>
 
@@ -167,14 +169,14 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
                   <button key={s} onClick={() => setFilterStatus(s)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors capitalize ${
                       filterStatus === s ? "bg-[#c6e135] text-[#1a1a1a]" : "bg-white border border-gray-200 text-gray-500 hover:border-gray-300"
-                    }`}>{s === "all" ? "All" : s}</button>
+                    }`}>{s === "all" ? t("feedback.typeAll") : s}</button>
                 ))}
               </div>
             </div>
           </div>
 
           {/* Result count */}
-          <p className="text-xs text-gray-400 mb-3">{filtered.length} results</p>
+          <p className="text-xs text-gray-400 mb-3">{filtered.length} {t("feedback.results")}</p>
 
           <FeedbackList
             items={paginated}
@@ -190,17 +192,17 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
                 disabled={page === 1}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent"
               >
-                <LuChevronLeft className="w-4 h-4" /> Previous
+                <LuChevronLeft className="w-4 h-4" /> {t("feedback.previous")}
               </button>
               <span className="text-sm text-gray-500">
-                Page <span className="font-semibold text-[#1a1a1a]">{page}</span> of {totalPages}
+                {t("feedback.page")} <span className="font-semibold text-[#1a1a1a]">{page}</span> {t("feedback.of")} {totalPages}
               </span>
               <button
                 onClick={() => setPage(p => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
                 className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:hover:bg-transparent"
               >
-                Next <LuChevronRight className="w-4 h-4" />
+                {t("feedback.next")} <LuChevronRight className="w-4 h-4" />
               </button>
             </div>
           )}
@@ -214,7 +216,7 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
             className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#1a1a1a] mb-4 transition-colors"
           >
             <LuArrowLeft className="w-4 h-4" />
-            All Feedback
+            {t("feedback.allFeedback")}
           </button>
           <ChatThread
             feedback={selectedItem}
@@ -230,7 +232,7 @@ export function FeedbackShell({ projectId }: { projectId: number }) {
             className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-[#1a1a1a] mb-4 transition-colors"
           >
             <LuArrowLeft className="w-4 h-4" />
-            All Feedback
+            {t("feedback.allFeedback")}
           </button>
           <NewFeedbackForm
             projectId={projectId}

@@ -5,6 +5,7 @@ import { LuChevronUp, LuSend, LuMessageCircle, LuPaperclip, LuX, LuChevronDown }
 import { SafeHtml } from "./safe-html";
 import { RichTextEditor } from "./rich-text-editor";
 import type { IssueWithVotes } from "./issue-card-with-vote";
+import { useI18n } from "@/i18n/context";
 
 const typePillColor: Record<string, string> = {
   bug: "bg-red-100 text-red-700",
@@ -101,6 +102,7 @@ export function IssueDetailModal({
   const [expanded, setExpanded] = useState(false);
   const [images, setImages] = useState<string[]>([]);
   const commentsEndRef = useRef<HTMLDivElement>(null);
+  const { t } = useI18n();
 
   const currentStyle = AVATAR_STYLES[avatarSeed % AVATAR_STYLES.length];
   const avatarUrl = `https://api.dicebear.com/7.x/${currentStyle}/svg?seed=${encodeURIComponent(name || "anon")}-${avatarSeed}`;
@@ -259,7 +261,7 @@ export function IssueDetailModal({
             >
               <LuChevronUp className="w-4 h-4" />
               <span className="font-semibold">{votes}</span>
-              <span className="text-gray-400 text-xs">Vote to prioritize</span>
+              <span className="text-gray-400 text-xs">{t("issues.voteToPrioritize")}</span>
             </button>
 
             {/* Description */}
@@ -275,7 +277,7 @@ export function IssueDetailModal({
             <div className="flex items-center gap-2 mb-5">
               <LuMessageCircle className="w-5 h-5 text-gray-400" />
               <span className="text-base font-semibold text-[#1a1a1a]">
-                Comments ({comments.length})
+                {t("issues.comments")} ({comments.length})
               </span>
             </div>
 
@@ -284,7 +286,7 @@ export function IssueDetailModal({
                 <div className="w-6 h-6 border-2 border-[#c6e135] border-t-transparent rounded-full animate-spin" />
               </div>
             ) : comments.length === 0 ? (
-              <p className="text-sm text-gray-300 text-center py-10">No comments yet. Be the first to share your thoughts!</p>
+              <p className="text-sm text-gray-300 text-center py-10">{t("issues.noComments")}</p>
             ) : (
               <div className="space-y-5">
                 {comments.map((c) => {
@@ -342,7 +344,7 @@ export function IssueDetailModal({
                 onClick={() => setExpanded(true)}
                 className="flex-1 text-left text-sm text-gray-400 px-4 py-3 border border-gray-200 rounded-xl bg-gray-50 hover:border-[#c6e135] transition-colors"
               >
-                Leave a comment...
+                {t("issues.leaveComment")}
               </button>
             </div>
           ) : (
@@ -357,7 +359,7 @@ export function IssueDetailModal({
                 />
                 <input
                   type="text"
-                  placeholder="Your name (optional)"
+                  placeholder={t("issues.yourName")}
                   value={name}
                   onChange={(e) => updateName(e.target.value)}
                   className="flex-1 text-sm px-3 py-2 border border-gray-200 rounded-xl bg-white focus:outline-none focus:border-[#c6e135]"
@@ -369,7 +371,7 @@ export function IssueDetailModal({
 
               <RichTextEditor
                 compact
-                placeholder="Write your comment..."
+                placeholder={t("issues.leaveComment")}
                 onChange={(html) => setContent(html)}
               />
 
@@ -390,7 +392,7 @@ export function IssueDetailModal({
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 cursor-pointer transition-colors">
                   <LuPaperclip className="w-4 h-4" />
-                  <span>Attach</span>
+                  <span>{t("issues.attach")}</span>
                   <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
                 </label>
                 <button
@@ -399,7 +401,7 @@ export function IssueDetailModal({
                   className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#c6e135] text-[#1a1a1a] font-medium text-sm hover:bg-[#b5d030] disabled:opacity-40 transition-colors"
                 >
                   <LuSend className="w-4 h-4" />
-                  {sending ? "Sending..." : "Send"}
+                  {sending ? t("issues.sending") : t("issues.send")}
                 </button>
               </div>
             </div>

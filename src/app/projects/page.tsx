@@ -2,6 +2,7 @@ import { db } from "@/db/client";
 import { projects } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { ProjectCard } from "@/components/project-card";
+import { T } from "@/components/t-text";
 
 export const dynamic = "force-dynamic";
 
@@ -15,7 +16,7 @@ export default async function ProjectsPage() {
   return (
     <div className="py-12">
       <div className="flex items-baseline gap-3 mb-10">
-        <h1 className="text-3xl font-bold">Projects</h1>
+        <h1 className="text-3xl font-bold"><T k="projects.title" /></h1>
         <span className="text-lg text-[#1a1a1a]/40 font-medium">
           {allProjects.length}
         </span>
@@ -23,7 +24,7 @@ export default async function ProjectsPage() {
 
       {allProjects.length === 0 ? (
         <div className="bg-white rounded-2xl shadow-sm p-12 text-center text-[#1a1a1a]/40">
-          No projects yet. Add some via the CLI or API.
+          <T k="projects.noProjects" />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

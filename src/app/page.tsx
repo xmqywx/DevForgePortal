@@ -10,27 +10,28 @@ import { db } from "@/db/client";
 import { projects } from "@/db/schema";
 import { inArray, desc } from "drizzle-orm";
 import { ProjectCard } from "@/components/project-card";
+import { T } from "@/components/t-text";
 
 const AREAS = [
   {
     icon: LuBot,
-    title: "AI & Agent Systems",
-    desc: "Building intelligent agents, self-reporting systems, and AI-powered development tools.",
+    titleKey: "home.ai",
+    descKey: "home.aiDesc",
   },
   {
     icon: LuWrench,
-    title: "Developer Tools",
-    desc: "CLIs, dashboards, and project management utilities for productive development.",
+    titleKey: "home.devtools",
+    descKey: "home.devtoolsDesc",
   },
   {
     icon: LuShoppingCart,
-    title: "E-Commerce",
-    desc: "Cross-border e-commerce solutions, automation, and logistics integrations.",
+    titleKey: "home.ecommerce",
+    descKey: "home.ecommerceDesc",
   },
   {
     icon: LuGamepad2,
-    title: "Game Automation",
-    desc: "Scripting engines, reverse engineering tools, and monitoring dashboards.",
+    titleKey: "home.gaming",
+    descKey: "home.gamingDesc",
   },
 ];
 
@@ -60,18 +61,17 @@ export default async function Home() {
       {/* Hero */}
       <section className="py-20 md:py-28">
         <h1 className="text-5xl md:text-6xl font-bold tracking-tight leading-tight mb-4">
-          Hi, I&apos;m Ying
+          <T k="home.greeting" />
         </h1>
         <p className="text-lg md:text-xl text-[#1a1a1a]/60 max-w-2xl mb-8">
-          Full-stack developer building AI tools, developer utilities, and
-          cross-border e-commerce solutions.
+          <T k="home.subtitle" />
         </p>
         <div className="flex flex-wrap gap-3">
           <Link
             href="/projects"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#c6e135] text-[#1a1a1a] font-semibold hover:bg-[#b8d42a] transition-colors"
           >
-            View Projects
+            <T k="home.viewProjects" />
             <LuArrowRight className="w-4 h-4" />
           </Link>
           <a
@@ -80,7 +80,7 @@ export default async function Home() {
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#1a1a1a]/15 font-semibold hover:border-[#1a1a1a]/30 transition-colors"
           >
-            GitHub
+            <T k="home.github" />
           </a>
         </div>
       </section>
@@ -89,13 +89,12 @@ export default async function Home() {
       {featured.length > 0 && (
         <section className="pb-16">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold">Current Projects</h2>
+            <h2 className="text-2xl font-bold"><T k="home.currentProjects" /></h2>
             <Link
               href="/projects"
               className="text-sm font-medium text-[#1a1a1a]/50 hover:text-[#1a1a1a] transition-colors flex items-center gap-1"
             >
-              View all projects
-              <LuArrowRight className="w-3.5 h-3.5" />
+              <T k="home.viewAll" />
             </Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -116,19 +115,19 @@ export default async function Home() {
 
       {/* Areas of Focus */}
       <section className="pb-16">
-        <h2 className="text-2xl font-bold mb-8">Areas of Focus</h2>
+        <h2 className="text-2xl font-bold mb-8"><T k="home.areasOfFocus" /></h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {AREAS.map((area) => (
             <div
-              key={area.title}
+              key={area.titleKey}
               className="bg-white rounded-2xl shadow-sm p-6"
             >
               <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-[#c6e135]/20 mb-4">
                 <area.icon className="w-5 h-5 text-[#5a6b0a]" />
               </span>
-              <h3 className="font-bold text-base mb-1.5">{area.title}</h3>
+              <h3 className="font-bold text-base mb-1.5"><T k={area.titleKey} /></h3>
               <p className="text-sm text-[#1a1a1a]/50 leading-relaxed">
-                {area.desc}
+                <T k={area.descKey} />
               </p>
             </div>
           ))}
@@ -137,7 +136,7 @@ export default async function Home() {
 
       {/* Tech Stack */}
       <section className="pb-20">
-        <h2 className="text-2xl font-bold mb-8">Tech Stack</h2>
+        <h2 className="text-2xl font-bold mb-8"><T k="home.techStack" /></h2>
         <div className="flex flex-wrap gap-2.5">
           {TECH.map((t) => (
             <span

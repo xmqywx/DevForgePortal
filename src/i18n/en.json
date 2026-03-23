@@ -1,0 +1,122 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects"
+  },
+  "home": {
+    "greeting": "Hi, I'm Ying",
+    "subtitle": "Full-stack developer building AI tools, developer utilities, and cross-border e-commerce solutions",
+    "viewProjects": "View Projects",
+    "github": "GitHub",
+    "currentProjects": "Current Projects",
+    "viewAll": "View all projects →",
+    "areasOfFocus": "Areas of Focus",
+    "ai": "AI & Agent Systems",
+    "aiDesc": "Building intelligent agents and AI-powered tools",
+    "devtools": "Developer Tools",
+    "devtoolsDesc": "CLI tools, plugins, and developer experience",
+    "ecommerce": "E-Commerce",
+    "ecommerceDesc": "Cross-border trading and Shopify integrations",
+    "gaming": "Game Automation",
+    "gamingDesc": "Reverse engineering and automated gameplay",
+    "techStack": "Tech Stack"
+  },
+  "projects": {
+    "title": "Projects",
+    "noProjects": "No projects yet. Add some via the CLI or API.",
+    "progress": "Progress"
+  },
+  "project": {
+    "about": "About This Project",
+    "readme": "README",
+    "projectInfo": "PROJECT INFO",
+    "stage": "Stage",
+    "priority": "Priority",
+    "created": "Created",
+    "updated": "Updated",
+    "activityTrend": "ACTIVITY TREND",
+    "commitsPerWeek": "Commits per week (8 wk)",
+    "links": "LINKS",
+    "githubRepo": "GitHub Repository",
+    "website": "Website",
+    "docs": "Docs",
+    "stats": "STATS",
+    "commits": "Commits",
+    "openIssues": "Open Issues",
+    "progress": "Progress",
+    "activity": "ACTIVITY",
+    "release": "RELEASE",
+    "latest": "Latest",
+    "labels": "LABELS",
+    "resources": "RESOURCES",
+    "docsComingSoon": "Docs (coming soon)",
+    "contributors": "CONTRIBUTORS",
+    "contributor": "contributor",
+    "leaveFeedback": "Leave Feedback"
+  },
+  "tabs": {
+    "overview": "Overview",
+    "roadmap": "Roadmap",
+    "updates": "Updates",
+    "issues": "Issues",
+    "feedback": "Feedback"
+  },
+  "roadmap": {
+    "title": "Roadmap",
+    "noMilestones": "No milestones yet.",
+    "completed": "Completed",
+    "inProgress": "In Progress",
+    "planned": "Planned"
+  },
+  "updates": {
+    "title": "Updates & Releases",
+    "noReleases": "No releases yet.",
+    "download": "Download"
+  },
+  "issues": {
+    "open": "Open",
+    "inProgress": "In Progress",
+    "done": "Done",
+    "closed": "Closed",
+    "noIssues": "No issues",
+    "voteToPrioritize": "Vote to prioritize",
+    "comments": "Comments",
+    "noComments": "No comments yet. Be the first to share your thoughts!",
+    "leaveComment": "Leave a comment...",
+    "yourName": "Your name (optional)",
+    "send": "Send",
+    "sending": "Sending...",
+    "attach": "Attach",
+    "votes": "votes"
+  },
+  "feedback": {
+    "title": "Feedback",
+    "newFeedback": "New Feedback",
+    "allFeedback": "All Feedback",
+    "search": "Search by name or title...",
+    "sortMostVoted": "Most Voted",
+    "sortNewest": "Newest",
+    "sortOldest": "Oldest",
+    "typeAll": "All",
+    "results": "results",
+    "noFeedback": "No feedback yet. Be the first!",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of",
+    "writeReply": "Write a reply...",
+    "submitFeedback": "Submit Feedback",
+    "contentLabel": "Content",
+    "titleLabel": "Title",
+    "typeLabel": "Type",
+    "nameLabel": "Your Name (optional)",
+    "screenshots": "Screenshots",
+    "clickUpload": "Click to upload images",
+    "thankYou": "Thanks for your feedback!",
+    "willReview": "We will review it and update the status.",
+    "viewAll": "View all feedback"
+  },
+  "footer": {
+    "builtBy": "Built by Ying"
+  }
+}

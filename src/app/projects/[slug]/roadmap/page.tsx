@@ -2,6 +2,7 @@ import { db } from "@/db/client";
 import { projects, milestones } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import { T } from "@/components/t-text";
 import {
   LuLightbulb,
   LuRocket,
@@ -11,11 +12,11 @@ import {
 } from "react-icons/lu";
 
 function formatDate(dateStr: string) {
-  // "2026-Q2" → "Q2 2026"
+  // "2026-Q2" -> "Q2 2026"
   const qMatch = dateStr.match(/^(\d{4})-Q(\d)$/);
   if (qMatch) return `Q${qMatch[2]} ${qMatch[1]}`;
 
-  // "2026-03-22" or "2026-03" → "Mar 2026"
+  // "2026-03-22" or "2026-03" -> "Mar 2026"
   const parts = dateStr.split("-");
   const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -83,7 +84,7 @@ export default async function RoadmapPage({
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-8">Roadmap</h1>
+      <h1 className="text-2xl font-bold mb-8"><T k="roadmap.title" /></h1>
 
       {/* Timeline */}
       <div className="relative">
@@ -140,10 +141,10 @@ export default async function RoadmapPage({
                       }`}
                     >
                       {item.status === "completed"
-                        ? "Completed"
+                        ? <T k="roadmap.completed" />
                         : item.status === "current"
-                          ? "In Progress"
-                          : "Planned"}
+                          ? <T k="roadmap.inProgress" />
+                          : <T k="roadmap.planned" />}
                     </span>
                   </div>
                 </div>
@@ -154,7 +155,7 @@ export default async function RoadmapPage({
 
         {items.length === 0 && (
           <p className="text-center text-gray-400 py-16">
-            No milestones yet.
+            <T k="roadmap.noMilestones" />
           </p>
         )}
       </div>
