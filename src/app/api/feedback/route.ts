@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     .values({
       projectId,
       title,
-      description: `**From feedback #${fb.id}** (by ${author_name ?? "匿名"})\n\n${description ?? ""}`,
+      description: `<p><strong>From feedback #${fb.id}</strong> (by ${author_name ?? "匿名"})</p>${description ?? ""}`,
       type: issueType,
       status: "open",
       priority: "medium",
