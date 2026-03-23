@@ -267,7 +267,7 @@ export function IssueDetailModal({
             {/* Description */}
             {issue.description && (
               <div className="text-sm text-gray-600 leading-relaxed bg-gray-50 rounded-xl p-4 border border-gray-100">
-                {renderDescription(issue.description)}
+                <SafeHtml content={issue.description} className="rendered-html" />
               </div>
             )}
           </div>
