@@ -3,6 +3,8 @@ import { projects } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
 import { ProjectCard } from "@/components/project-card";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProjectsPage() {
   const allProjects = await db
     .select()
