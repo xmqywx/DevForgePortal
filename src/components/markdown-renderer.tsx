@@ -2,6 +2,7 @@
 
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
 
 export function MarkdownRenderer({ content }: { content: string }) {
   if (!content) return null;
@@ -10,6 +11,7 @@ export function MarkdownRenderer({ content }: { content: string }) {
     <div className="markdown-content text-sm text-gray-700 leading-relaxed">
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeRaw]}
         components={{
           h1: ({ children }) => (
             <h1 className="text-2xl font-bold text-[#1a1a1a] mt-4 mb-2">{children}</h1>
