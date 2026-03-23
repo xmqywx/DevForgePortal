@@ -18,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DevForge - Ying's Project Portal",
+  title: "DevForge - Kris's Project Portal",
   description:
     "Full-stack developer building AI tools, developer utilities, and cross-border e-commerce solutions.",
 };

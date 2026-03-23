@@ -4,7 +4,7 @@
     "projects": "Projects"
   },
   "home": {
-    "greeting": "Hi, I'm Ying",
+    "greeting": "Hi, I'm Kris",
     "subtitle": "Full-stack developer building AI tools, developer utilities, and cross-border e-commerce solutions",
     "viewProjects": "View Projects",
     "github": "GitHub",
@@ -117,6 +117,6 @@
     "viewAll": "View all feedback"
   },
   "footer": {
-    "builtBy": "Built by Ying"
+    "builtBy": "Built by Kris"
   }
 }

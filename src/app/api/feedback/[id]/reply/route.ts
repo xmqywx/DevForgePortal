@@ -28,7 +28,7 @@ export async function POST(
     .insert(feedbackReplies)
     .values({
       feedbackId,
-      authorName: isOwner ? "Ying" : (author_name ?? "匿名"),
+      authorName: isOwner ? "Kris" : (author_name ?? "匿名"),
       authorIp: ip,
       isOwner,
       content,

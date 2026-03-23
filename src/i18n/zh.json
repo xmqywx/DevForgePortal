@@ -4,7 +4,7 @@
     "projects": "项目"
   },
   "home": {
-    "greeting": "你好，我是 Ying",
+    "greeting": "你好，我是 Kris",
     "subtitle": "全栈开发者，专注于 AI 工具、开发者工具和跨境电商解决方案",
     "viewProjects": "查看项目",
     "github": "GitHub",
@@ -117,6 +117,6 @@
     "viewAll": "查看全部反馈"
   },
   "footer": {
-    "builtBy": "由 Ying 构建"
+    "builtBy": "由 Kris 构建"
   }
 }
