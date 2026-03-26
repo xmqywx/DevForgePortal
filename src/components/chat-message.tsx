@@ -1,4 +1,5 @@
 import { VoteButton } from "./vote-button";
+import { ImagePreview } from "./image-lightbox";
 
 function getAvatarUrl(name: string) {
   const hash = name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -91,11 +92,10 @@ export function ChatMessage({
           {images && images.length > 0 && (
             <div className="flex gap-2 mt-2">
               {images.map((url, i) => (
-                <img
+                <ImagePreview
                   key={i}
                   src={url}
-                  alt=""
-                  className="max-w-[200px] rounded-lg border"
+                  className="max-w-[200px] max-h-[150px]"
                 />
               ))}
             </div>

@@ -24,7 +24,7 @@ async function sendFeishuCard(card: Record<string, unknown>) {
 }
 
 export async function notifyNewFeedback(
-  fb: { id: number; title: string; type: string; description: string; authorName: string | null },
+  fb: { id: number; title: string; type: string; description: string; authorName: string | null; images?: string[] },
   projectName: string,
   projectSlug?: string,
 ) {
@@ -32,6 +32,8 @@ export async function notifyNewFeedback(
   const desc = (fb.description ?? "")
     .replace(/<[^>]*>/g, "")
     .substring(0, 200);
+  const hasImages = fb.images && Array.isArray(fb.images) && fb.images.length > 0;
+  const imageNote = hasImages ? `\n\uD83D\uDCCE 包含 ${fb.images!.length} 张图片` : "";
   const slug = projectSlug ?? projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
   const detailUrl = `${BASE_URL}/projects/${slug}/feedback/${fb.id}`;
 
@@ -59,7 +61,7 @@ export async function notifyNewFeedback(
       { tag: "hr" },
       {
         tag: "div",
-        text: { tag: "lark_md", content: `**${fb.title}**\n${desc}` },
+        text: { tag: "lark_md", content: `**${fb.title}**\n${desc}${imageNote}` },
       },
       { tag: "hr" },
       {

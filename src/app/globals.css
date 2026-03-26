@@ -219,9 +219,16 @@
   margin: 0.1em 0;
 }
 .rendered-html img {
-  max-width: 100%;
+  max-width: 200px;
+  max-height: 150px;
+  object-fit: cover;
   border-radius: 8px;
-  margin: 0.5em 0;
+  border: 1px solid #e5e7eb;
+  cursor: zoom-in;
+  transition: opacity 0.2s;
+}
+.rendered-html img:hover {
+  opacity: 0.9;
 }
 .rendered-html p {
   margin: 0.25em 0;

@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { LuSend, LuPaperclip, LuChevronDown, LuX } from "react-icons/lu";
 import { VoteButton } from "./vote-button";
 import { SafeHtml } from "./safe-html";
+import { ImagePreview } from "./image-lightbox";
 import { RichTextEditor } from "./rich-text-editor";
 import type { FeedbackItem, Reply } from "./feedback-shell";
 import { useI18n } from "@/i18n/context";
@@ -98,11 +99,10 @@ function MessageBubble({
           {images && images.length > 0 && (
             <div className="flex gap-2 mt-2 flex-wrap">
               {images.map((url, i) => (
-                <img
+                <ImagePreview
                   key={i}
                   src={url}
-                  alt=""
-                  className="max-w-[200px] rounded-lg border"
+                  className="max-w-[200px] max-h-[150px]"
                 />
               ))}
             </div>

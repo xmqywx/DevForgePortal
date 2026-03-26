@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { LuChevronUp, LuSend, LuMessageCircle, LuPaperclip, LuX, LuChevronDown } from "react-icons/lu";
 import { SafeHtml } from "./safe-html";
+import { ImagePreview } from "./image-lightbox";
 import { RichTextEditor } from "./rich-text-editor";
 import type { IssueWithVotes } from "./issue-card-with-vote";
 import { useI18n } from "@/i18n/context";
@@ -314,7 +315,7 @@ export function IssueDetailModal({
                           {c.images && c.images.length > 0 && (
                             <div className="flex gap-2 mt-2 flex-wrap">
                               {c.images.map((url, i) => (
-                                <img key={i} src={url} alt="" className="max-w-[200px] rounded-lg border" />
+                                <ImagePreview key={i} src={url} className="max-w-[200px] max-h-[150px]" />
                               ))}
                             </div>
                           )}
