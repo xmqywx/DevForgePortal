@@ -96,7 +96,7 @@ export async function POST(request: Request) {
   // 4. Send notification (non-blocking)
   const project = db.select().from(projects).where(eq(projects.id, projectId)).get();
   import("@/lib/notify").then(({ notifyNewFeedback }) => {
-    notifyNewFeedback(fb, project?.name ?? "Unknown").catch(console.error);
+    notifyNewFeedback(fb, project?.name ?? "Unknown", project?.slug).catch(console.error);
   });
 
   return Response.json({ ...fb, issueId: issue.id }, { status: 201 });

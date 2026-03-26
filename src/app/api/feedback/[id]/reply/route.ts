@@ -1,5 +1,6 @@
 import { db } from "@/db/client";
-import { feedbackReplies } from "@/db/schema";
+import { feedback, feedbackReplies, projects } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import type { NextRequest } from "next/server";
 
@@ -18,7 +19,7 @@ export async function POST(
     req.headers.get("x-owner-secret") === process.env.OWNER_SECRET;
 
   const body = await req.json();
-  const { content, author_name, images } = body;
+  const { content, author_name, images, avatar_url } = body;
 
   if (!content) {
     return Response.json({ error: "content is required" }, { status: 400 });
@@ -33,9 +34,29 @@ export async function POST(
       isOwner,
       content,
       images: images ?? [],
+      avatarUrl: avatar_url ?? null,
     })
     .returning()
     .get();
+
+  // Send notification for non-owner replies
+  if (!isOwner) {
+    const fb = db.select().from(feedback).where(eq(feedback.id, feedbackId)).get();
+    if (fb) {
+      const project = db.select().from(projects).where(eq(projects.id, fb.projectId)).get();
+      if (project) {
+        import("@/lib/notify").then(({ notifyNewReply }) => {
+          notifyNewReply(
+            fb.title,
+            author_name ?? "匿名",
+            content,
+            project.slug,
+            feedbackId,
+          ).catch(console.error);
+        });
+      }
+    }
+  }
 
   return Response.json(result, { status: 201 });
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db/client";
-import { issueComments, issues } from "@/db/schema";
+import { issueComments, issues, projects } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -31,8 +31,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!isOwner) {
     const issue = db.select().from(issues).where(eq(issues.id, Number(id))).get();
     if (issue) {
-      import("@/lib/notify").then(({ notifyNewComment }) => {
-        notifyNewComment(issue.title, body.author_name || "匿名", body.content, "").catch(console.error);
+      const project = db.select().from(projects).where(eq(projects.id, issue.projectId)).get();
+      import("@/lib/notify").then(({ notifyNewIssueComment }) => {
+        notifyNewIssueComment(
+          issue.title,
+          body.author_name || "匿名",
+          body.content,
+          project?.slug ?? "",
+          issue.id,
+        ).catch(console.error);
       });
     }
   }

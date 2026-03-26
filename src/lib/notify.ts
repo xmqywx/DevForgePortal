@@ -1,58 +1,78 @@
 // Notification: Feishu webhook + Email (optional)
 
 const FEISHU_WEBHOOK = process.env.FEISHU_WEBHOOK;
+const BASE_URL = "https://forge.wdao.chat";
+
+const TYPE_LABELS: Record<string, string> = {
+  bug: "\uD83D\uDC1B Bug",
+  feature: "\uD83D\uDCA1 功能建议",
+  improvement: "\uD83D\uDCDD 改进",
+  question: "❓ 问题",
+};
+
+async function sendFeishuCard(card: Record<string, unknown>) {
+  if (!FEISHU_WEBHOOK) return;
+  try {
+    await fetch(FEISHU_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ msg_type: "interactive", card }),
+    });
+  } catch (e) {
+    console.error("Feishu notification failed:", e);
+  }
+}
 
 export async function notifyNewFeedback(
   fb: { id: number; title: string; type: string; description: string; authorName: string | null },
-  projectName: string
+  projectName: string,
+  projectSlug?: string,
 ) {
-  // Feishu notification
-  if (FEISHU_WEBHOOK) {
-    try {
-      const typeEmoji: Record<string, string> = {
-        bug: "🐛", feature: "💡", improvement: "📝", question: "❓"
-      };
-      const desc = (fb.description ?? "")
-        .replace(/<[^>]*>/g, "") // strip HTML tags
-        .substring(0, 200);
+  const typeLabel = TYPE_LABELS[fb.type] ?? fb.type;
+  const desc = (fb.description ?? "")
+    .replace(/<[^>]*>/g, "")
+    .substring(0, 200);
+  const slug = projectSlug ?? projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const detailUrl = `${BASE_URL}/projects/${slug}/feedback/${fb.id}`;
 
-      await fetch(FEISHU_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          msg_type: "interactive",
-          card: {
-            header: {
-              title: { tag: "plain_text", content: `${typeEmoji[fb.type] ?? "📬"} 新反馈 — ${projectName}` },
-              template: fb.type === "bug" ? "red" : "green",
-            },
-            elements: [
-              {
-                tag: "div",
-                text: {
-                  tag: "lark_md",
-                  content: `**${fb.title}**\n\n${desc}\n\n来自: ${fb.authorName ?? "匿名"} | 类型: ${fb.type}`,
-                },
-              },
-              {
-                tag: "action",
-                actions: [
-                  {
-                    tag: "button",
-                    text: { tag: "plain_text", content: "查看详情" },
-                    url: `https://forge.wdao.chat/projects/${projectName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}/feedback`,
-                    type: "primary",
-                  },
-                ],
-              },
-            ],
-          },
-        }),
-      });
-    } catch (e) {
-      console.error("Feishu notification failed:", e);
-    }
-  }
+  // Feishu notification
+  await sendFeishuCard({
+    header: {
+      title: { tag: "plain_text", content: "\uD83D\uDCEC 新反馈" },
+      template: fb.type === "bug" ? "red" : "green",
+    },
+    elements: [
+      {
+        tag: "div",
+        fields: [
+          { is_short: true, text: { tag: "lark_md", content: `**项目**\n${projectName}` } },
+          { is_short: true, text: { tag: "lark_md", content: `**类型**\n${typeLabel}` } },
+        ],
+      },
+      {
+        tag: "div",
+        fields: [
+          { is_short: true, text: { tag: "lark_md", content: `**提交者**\n${fb.authorName ?? "匿名"}` } },
+          { is_short: true, text: { tag: "lark_md", content: `**时间**\n${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}` } },
+        ],
+      },
+      { tag: "hr" },
+      {
+        tag: "div",
+        text: { tag: "lark_md", content: `**${fb.title}**\n${desc}` },
+      },
+      { tag: "hr" },
+      {
+        tag: "action",
+        actions: [{
+          tag: "button",
+          text: { tag: "plain_text", content: "查看详情 →" },
+          url: detailUrl,
+          type: "primary",
+        }],
+      },
+    ],
+  });
 
   // Email notification (if configured)
   if (process.env.SMTP_HOST && process.env.NOTIFICATION_EMAIL) {
@@ -65,38 +85,101 @@ export async function notifyNewFeedback(
   }
 }
 
-export async function notifyNewComment(
+export async function notifyNewReply(
+  feedbackTitle: string,
+  authorName: string,
+  content: string,
+  projectSlug: string,
+  feedbackId: number,
+) {
+  const desc = content.replace(/<[^>]*>/g, "").substring(0, 200);
+  const detailUrl = `${BASE_URL}/projects/${projectSlug}/feedback/${feedbackId}`;
+
+  await sendFeishuCard({
+    header: {
+      title: { tag: "plain_text", content: "\uD83D\uDCAC 新反馈回复" },
+      template: "blue",
+    },
+    elements: [
+      {
+        tag: "div",
+        fields: [
+          { is_short: true, text: { tag: "lark_md", content: `**反馈**\n${feedbackTitle}` } },
+          { is_short: true, text: { tag: "lark_md", content: `**回复者**\n${authorName}` } },
+        ],
+      },
+      {
+        tag: "div",
+        fields: [
+          { is_short: true, text: { tag: "lark_md", content: `**时间**\n${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}` } },
+        ],
+      },
+      { tag: "hr" },
+      {
+        tag: "div",
+        text: { tag: "lark_md", content: desc },
+      },
+      { tag: "hr" },
+      {
+        tag: "action",
+        actions: [{
+          tag: "button",
+          text: { tag: "plain_text", content: "查看详情 →" },
+          url: detailUrl,
+          type: "primary",
+        }],
+      },
+    ],
+  });
+}
+
+export async function notifyNewIssueComment(
   issueTitle: string,
   authorName: string,
   content: string,
-  projectName: string
+  projectSlug: string,
+  issueId: number,
 ) {
-  if (!FEISHU_WEBHOOK) return;
-  try {
-    const desc = content.replace(/<[^>]*>/g, "").substring(0, 200);
-    await fetch(FEISHU_WEBHOOK, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        msg_type: "interactive",
-        card: {
-          header: {
-            title: { tag: "plain_text", content: `💬 新评论 — ${projectName}` },
-            template: "blue",
-          },
-          elements: [
-            {
-              tag: "div",
-              text: {
-                tag: "lark_md",
-                content: `**${issueTitle}**\n\n${authorName}: ${desc}`,
-              },
-            },
-          ],
-        },
-      }),
-    });
-  } catch (e) {
-    console.error("Feishu comment notification failed:", e);
-  }
+  const desc = content.replace(/<[^>]*>/g, "").substring(0, 200);
+  const detailUrl = `${BASE_URL}/projects/${projectSlug}/issues`;
+
+  await sendFeishuCard({
+    header: {
+      title: { tag: "plain_text", content: "\uD83D\uDCAC 新Issue评论" },
+      template: "purple",
+    },
+    elements: [
+      {
+        tag: "div",
+        fields: [
+          { is_short: true, text: { tag: "lark_md", content: `**Issue**\n${issueTitle}` } },
+          { is_short: true, text: { tag: "lark_md", content: `**评论者**\n${authorName}` } },
+        ],
+      },
+      {
+        tag: "div",
+        fields: [
+          { is_short: true, text: { tag: "lark_md", content: `**时间**\n${new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })}` } },
+        ],
+      },
+      { tag: "hr" },
+      {
+        tag: "div",
+        text: { tag: "lark_md", content: desc },
+      },
+      { tag: "hr" },
+      {
+        tag: "action",
+        actions: [{
+          tag: "button",
+          text: { tag: "plain_text", content: "查看详情 →" },
+          url: detailUrl,
+          type: "primary",
+        }],
+      },
+    ],
+  });
 }
+
+// Backward compatibility alias
+export const notifyNewComment = notifyNewIssueComment;
