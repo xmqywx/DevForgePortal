@@ -34,8 +34,11 @@ rsync -avz \
   "$DEVFORGE_DIR/" "$SERVER:$REMOTE_DIR/" \
   | tail -1
 
-# Step 2: Server install + build + restart
-echo "  [2/4] Building on server..."
+# Step 2: Backup DB + install + build + restart
+echo "  [2/5] Backing up server DB..."
+ssh "$SERVER" "cp $REMOTE_DIR/devforge.db $REMOTE_DIR/devforge.db.bak 2>/dev/null && echo '  DB backed up' || echo '  No DB to backup'"
+
+echo "  [3/5] Building on server..."
 ssh "$SERVER" "cd $REMOTE_DIR && \
   npm install --silent 2>&1 | tail -1 && \
   rm -rf .next && \
@@ -44,8 +47,12 @@ ssh "$SERVER" "cd $REMOTE_DIR && \
   pm2 restart devforge-ws 2>/dev/null && \
   echo '  Build OK'"
 
-# Step 3: Sync project data (push)
-echo "  [3/4] Syncing data..."
+# Verify DB not corrupted after build
+echo "  Verifying DB integrity..."
+ssh "$SERVER" "sqlite3 $REMOTE_DIR/devforge.db 'SELECT COUNT(*) FROM feedback' 2>/dev/null | xargs -I{} echo '  Feedback: {} rows'"
+
+# Step 4: Sync project data (push)
+echo "  [4/5] Syncing data..."
 cd "$LOCAL_DEVFORGE"
 if [ -f "scripts/sync.ts" ]; then
   npx tsx scripts/sync.ts push 2>&1 | grep -E "Push result|Sync complete|error"
@@ -53,8 +60,8 @@ else
   echo "  Sync script not found, skipping"
 fi
 
-# Step 4: Verify
-echo "  [4/4] Verifying..."
+# Step 5: Verify
+echo "  [5/5] Verifying..."
 sleep 3
 HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://forge.wdao.chat)
 if [ "$HTTP_CODE" = "200" ]; then
