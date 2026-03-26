@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db/client";
-import { issueComments } from "@/db/schema";
+import { issueComments, issues } from "@/db/schema";
 import { eq, asc } from "drizzle-orm";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -26,6 +26,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     images: body.images ?? [],
     avatarUrl: body.avatar_url ?? null,
   }).returning().get();
+
+  // Notify on new comment (non-blocking, skip owner's own comments)
+  if (!isOwner) {
+    const issue = db.select().from(issues).where(eq(issues.id, Number(id))).get();
+    if (issue) {
+      import("@/lib/notify").then(({ notifyNewComment }) => {
+        notifyNewComment(issue.title, body.author_name || "匿名", body.content, "").catch(console.error);
+      });
+    }
+  }
 
   return NextResponse.json(result, { status: 201 });
 }

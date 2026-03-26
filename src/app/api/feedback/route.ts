@@ -1,5 +1,5 @@
 import { db } from "@/db/client";
-import { feedback, feedbackReplies, issues } from "@/db/schema";
+import { feedback, feedbackReplies, issues, projects } from "@/db/schema";
 import { eq, ne, desc, and } from "drizzle-orm";
 import { headers } from "next/headers";
 import { checkRateLimit } from "@/lib/anti-spam";
@@ -92,6 +92,12 @@ export async function POST(request: Request) {
     .set({ issueId: issue.id })
     .where(eq(feedback.id, fb.id))
     .run();
+
+  // 4. Send notification (non-blocking)
+  const project = db.select().from(projects).where(eq(projects.id, projectId)).get();
+  import("@/lib/notify").then(({ notifyNewFeedback }) => {
+    notifyNewFeedback(fb, project?.name ?? "Unknown").catch(console.error);
+  });
 
   return Response.json({ ...fb, issueId: issue.id }, { status: 201 });
 }
