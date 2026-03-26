@@ -27,22 +27,27 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     avatarUrl: body.avatar_url ?? null,
   }).returning().get();
 
+  // Look up issue for notifications + broadcast
+  const issue = db.select().from(issues).where(eq(issues.id, Number(id))).get();
+
   // Notify on new comment (non-blocking, skip owner's own comments)
-  if (!isOwner) {
-    const issue = db.select().from(issues).where(eq(issues.id, Number(id))).get();
-    if (issue) {
-      const project = db.select().from(projects).where(eq(projects.id, issue.projectId)).get();
-      import("@/lib/notify").then(({ notifyNewIssueComment }) => {
-        notifyNewIssueComment(
-          issue.title,
-          body.author_name || "匿名",
-          body.content,
-          project?.slug ?? "",
-          issue.id,
-        ).catch(console.error);
-      });
-    }
+  if (!isOwner && issue) {
+    const project = db.select().from(projects).where(eq(projects.id, issue.projectId)).get();
+    import("@/lib/notify").then(({ notifyNewIssueComment }) => {
+      notifyNewIssueComment(
+        issue.title,
+        body.author_name || "匿名",
+        body.content,
+        project?.slug ?? "",
+        issue.id,
+      ).catch(console.error);
+    });
   }
+
+  // Broadcast real-time event
+  import("@/lib/ws-broadcast").then(({ wsBroadcast }) => {
+    wsBroadcast({ type: "new_comment", data: { issueId: Number(id), issueTitle: issue?.title, authorName: body.author_name || "匿名" } });
+  });
 
   return NextResponse.json(result, { status: 201 });
 }

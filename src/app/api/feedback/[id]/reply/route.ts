@@ -39,24 +39,29 @@ export async function POST(
     .returning()
     .get();
 
+  // Look up feedback for notifications + broadcast
+  const fb = db.select().from(feedback).where(eq(feedback.id, feedbackId)).get();
+
   // Send notification for non-owner replies
-  if (!isOwner) {
-    const fb = db.select().from(feedback).where(eq(feedback.id, feedbackId)).get();
-    if (fb) {
-      const project = db.select().from(projects).where(eq(projects.id, fb.projectId)).get();
-      if (project) {
-        import("@/lib/notify").then(({ notifyNewReply }) => {
-          notifyNewReply(
-            fb.title,
-            author_name ?? "匿名",
-            content,
-            project.slug,
-            feedbackId,
-          ).catch(console.error);
-        });
-      }
+  if (!isOwner && fb) {
+    const project = db.select().from(projects).where(eq(projects.id, fb.projectId)).get();
+    if (project) {
+      import("@/lib/notify").then(({ notifyNewReply }) => {
+        notifyNewReply(
+          fb.title,
+          author_name ?? "匿名",
+          content,
+          project.slug,
+          feedbackId,
+        ).catch(console.error);
+      });
     }
   }
+
+  // Broadcast real-time event
+  import("@/lib/ws-broadcast").then(({ wsBroadcast }) => {
+    wsBroadcast({ type: "new_reply", data: { feedbackId, authorName: isOwner ? "Kris" : (author_name ?? "匿名"), feedbackTitle: fb?.title } });
+  });
 
   return Response.json(result, { status: 201 });
 }

@@ -16,6 +16,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   db.insert(issueVotes).values({ issueId: Number(id), voterIp: ip }).run();
 
   const count = db.select().from(issueVotes).where(eq(issueVotes.issueId, Number(id))).all().length;
+
+  // Broadcast real-time event
+  import("@/lib/ws-broadcast").then(({ wsBroadcast }) => {
+    wsBroadcast({ type: "new_vote", data: { issueId: Number(id) } });
+  });
+
   return NextResponse.json({ success: true, votes: count });
 }
 

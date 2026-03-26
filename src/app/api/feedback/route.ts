@@ -99,5 +99,10 @@ export async function POST(request: Request) {
     notifyNewFeedback(fb, project?.name ?? "Unknown", project?.slug).catch(console.error);
   });
 
+  // 5. Broadcast real-time event
+  import("@/lib/ws-broadcast").then(({ wsBroadcast }) => {
+    wsBroadcast({ type: "new_feedback", data: { id: fb.id, title: fb.title, projectName: project?.name, projectSlug: project?.slug, type: fb.type, authorName: author_name ?? "匿名" } });
+  });
+
   return Response.json({ ...fb, issueId: issue.id }, { status: 201 });
 }
